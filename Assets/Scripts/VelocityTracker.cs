@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class VelocityTracker : MonoBehaviour {
     public int storageSize = 100;
-
-    Rigidbody2D rb;
+    
     float[] previousSpeeds;
     int currentIndex = 0;
     float sum = 0;
@@ -14,19 +13,19 @@ public class VelocityTracker : MonoBehaviour {
 
     void Start () {
         previousSpeeds = new float[storageSize];
-        rb = gameObject.GetComponent<Rigidbody2D>();
     }
 
     void FixedUpdate() {
-        float currentSpeed = Mathf.Sqrt(Mathf.Pow(rb.velocity.x, 2) + Mathf.Pow(rb.velocity.y, 2));
+        float currentSpeed = GetComponent<Rigidbody2D>().velocity.magnitude;
         addNewSpeed(currentSpeed);
         updateAverage();
     }
     
     void addNewSpeed(float newSpeed) {
-        sum += newSpeed;
         sum -= previousSpeeds[currentIndex];
         previousSpeeds[currentIndex] = newSpeed;
+        sum += newSpeed;
+
         currentIndex++;
         if(currentIndex >= previousSpeeds.Length) currentIndex = 0;
     }
