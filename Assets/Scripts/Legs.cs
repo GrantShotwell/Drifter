@@ -8,7 +8,8 @@ public class Legs : MonoBehaviour {
     /// Ie. "Any Name"(base)/"Segment"/"Segment"/.../"Foot Vector"(defines the end of the leg)
     /// with each following GameObject being the child of the previous
     /// </summary>
-    
+
+    public float height;
     public GameObject[] leftLegs;
     public GameObject[] rightLegs;
     public GameObject[] upperLegs;
@@ -48,22 +49,61 @@ public class Legs : MonoBehaviour {
 
     void FixedUpdate() {
         Debug.Log(" - - - ");
-
         for(int j = 0; j < legSets.Length; j++) {
             GameObject[] legSet = legSets[j];
-            
+
             for(int k = 0; k < legSet.Length; k++) {
                 GameObject leg = legSet[k];
-                float legLenth = legLengths[j][k];
-                float angle = Vector2.Angle(footVectors[j][k], Vector2.right);
-                
+                float legLength = legLengths[j][k];
+                Vector2 desiredEndpoint;
+
+                float rotateAmount = 10.0f;
+                Vector2 direction = new Vector2(0, 0);
+                Vector2 desired = new Vector2(0, 0);
+                switch(j) {
+                    case 0:
+                        direction = Vector2.left;
+                        desired = Vector2.down;
+                        break;
+                    case 1:
+                        direction = Vector2.right;
+                        desired = Vector2.down;
+                        break;
+                    case 2:
+                        direction = Vector2.up;
+                        desired = Vector2.down;
+                        break;
+                }
+                RaycastHit2D hit = Physics2D.Raycast(leg.transform.position, direction, legLength, ~(1<<8));
+                float rotatedTotal = 0.0f;
+                while(rotatedTotal < 90.0f && hit.collider == null) {
+                    direction = direction.RotateTo(desired, rotateAmount);
+                    rotatedTotal += rotateAmount;
+                    hit = Physics2D.Raycast(leg.transform.position, direction, legLength, ~(1 << 8));
+                }
+                Debug.DrawRay(leg.transform.position, direction, Color.cyan, 1);
+
+                if(hit.collider == null) desiredEndpoint = Vector2.down * (legLength) + (Vector2)leg.transform.position;
+                else desiredEndpoint = hit.point;
+                float angle = Vector2.Angle(desiredEndpoint - (Vector2)leg.transform.position, Vector2.right);
                 for(int l = 0; l < segments[j][k].Length; l++) {
                     GameObject segment = segments[j][k][l];
                     float segmentLength = segmentLengths[j][k][l];
                     HingeJoint2D hinge = segment.GetComponent<HingeJoint2D>();
+
+                    SetHingeAngle(hinge, angle * (segmentLength / legLength) * Geometry.direction(direction.x));
+                    Debug.Log(angle);
                 }
             }
         }
+    }
+
+    void SetHingeAngle(HingeJoint2D hinge, float angle) {
+        hinge.useLimits = true;
+        JointAngleLimits2D limit = hinge.limits;
+        limit.min = angle;
+        limit.max = angle;
+        hinge.limits = limit;
     }
 
     List<GameObject> getSegmentList(GameObject parent) {
@@ -126,5 +166,4 @@ public class Legs : MonoBehaviour {
         }
         return length;
     }
-
 }

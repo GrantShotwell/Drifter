@@ -134,3 +134,21 @@ public class Line {
         return new Vector2(x, y);
     }
 }
+
+public static class Vector2Extension {
+    public static Vector2 Rotate(this Vector2 v, float degrees) {
+        float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
+        float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
+
+        float tx = v.x;
+        float ty = v.y;
+        v.x = (cos * tx) - (sin * ty);
+        v.y = (sin * tx) + (cos * ty);
+        return v;
+    }
+
+    public static Vector2 RotateTo(this Vector2 v1, Vector2 v2, float degrees) {
+        if(v1.x > v2.x) return Rotate(v1, -degrees);
+        else return Rotate(v1, degrees);
+    }
+}
