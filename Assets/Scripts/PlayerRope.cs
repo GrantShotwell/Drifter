@@ -103,8 +103,10 @@ public class PlayerRope : MonoBehaviour {
             Line l2 = Geometry.LineFromAngle(transform.position, Geometry.GetAngle(endpoint, transform.position) - 90);
             if(!Geometry.AreParallel(l1, l2)) {
                 Vector2 pointToLerpTo = Geometry.Intersection(l1, l2);
-                rigidbody.velocity = pointToLerpTo - (Vector2)transform.position;
-                rigidbody.velocity /= velocityMoved;
+                if(!(float.IsNaN(pointToLerpTo.x) || float.IsNaN(pointToLerpTo.y) || float.IsInfinity(pointToLerpTo.x) || float.IsInfinity(pointToLerpTo.y))) {
+                    rigidbody.velocity = pointToLerpTo - (Vector2)transform.position;
+                    rigidbody.velocity /= velocityMoved;
+                }
             }
         }
     }

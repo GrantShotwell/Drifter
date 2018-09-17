@@ -15,7 +15,8 @@ public class TilemapEditor {
         tileList = tilemap.GetTilesBlock(bounds);
     }
 
-    public void PlaceGameObject(string tileName, GameObject gObj) {
+    public void PlaceGameObject(string tileName, GameObject gObj) { PlaceGameObject(tileName, gObj, true); }
+    public void PlaceGameObject(string tileName, GameObject gObj, bool removeTile) {
         for(int n = tilemap.cellBounds.xMin; n < tilemap.cellBounds.xMax; n++) {
             for(int p = tilemap.cellBounds.yMin; p < tilemap.cellBounds.yMax; p++) {
                 Vector3Int localPlace = new Vector3Int(n, p, (int)tilemap.transform.position.y);
@@ -25,6 +26,7 @@ public class TilemapEditor {
                         newObj.transform.position = tilemapParent.GetComponent<GridLayout>().CellToWorld(localPlace);
                         Vector3 gridSize = tilemapParent.GetComponent<Grid>().cellSize;
                         newObj.transform.position += gridSize / 2;
+                        if(removeTile) tilemap.SetTile(localPlace, null);
                     }
                 }
             }

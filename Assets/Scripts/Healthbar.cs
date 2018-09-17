@@ -4,13 +4,19 @@ using UnityEngine;
 
 public class Healthbar : MonoBehaviour {
     public int max = 3;
-    private static int _health = 3;
-    private static int _overflow = 0;
+    private int _overflow = 0;
+    private int _health = 3;
     
-    public static int health { get { return health; } }
-    public static int overflow { get { return _overflow; } }
+    public int health { get { return _health; } }
+    public int overflow { get { return _overflow; } }
     
-    void Damage(int amount) {
+    public void Add(int amount) {
+        if(amount > 0) Heal(amount);
+        if(amount < 0) Damage(amount);
+    }
+    void Subtract(int amount) { Add(-amount); }
+
+    public void Damage(int amount) {
         _health -= amount;
         if(health < 0) {
             _overflow += health;
@@ -18,7 +24,7 @@ public class Healthbar : MonoBehaviour {
         }
         else _overflow = 0;
     }
-    void Heal(int amount) {
+    public void Heal(int amount) {
         _health += amount;
         if(health > max) {
             _overflow += health - max;
