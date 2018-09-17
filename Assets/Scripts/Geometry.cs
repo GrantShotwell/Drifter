@@ -17,6 +17,12 @@ public class Geometry {
     public static float GetAngle(Vector2 v1, Vector2 v2) { return GetAngle(v1.x, v1.y, v2.x, v2.y); }
     public static float GetAngle(float x1, float y1, float x2, float y2) { return ConvertToDegrees(Mathf.Atan2(y1 - y2, x1 - x2)); }
 
+    public static float NormalizeDegree(float degr) {
+        while(degr <   0) degr += 360;
+        while(degr > 360) degr -= 360;
+        return degr;
+    }
+
     public static float RoundToMultiple(float number, float multiple) { return Mathf.RoundToInt(number / multiple) * multiple; }
 
     public static Line LineFromTwoPoints(Vector2 p1, Vector2 p2) {

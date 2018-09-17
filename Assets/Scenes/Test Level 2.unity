@@ -21047,7 +21047,7 @@ Transform:
   m_GameObject: {fileID: 1209443402}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 35, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1382524753}
   m_Father: {fileID: 0}
@@ -21110,9 +21110,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfe5c270afa31f04bb4d9ff723df80b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftLegs:
+  leftLegs: []
+  rightLegs:
   - {fileID: 1382524752}
-  rightLegs: []
   upperLegs: []
 --- !u!1 &1306979022
 GameObject:
@@ -21165,7 +21165,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1382524752}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0.5, y: -0.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1507330631}
@@ -23362,7 +23362,7 @@ HingeJoint2D:
   m_BreakTorque: Infinity
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: -0.5, y: 0}
-  m_ConnectedAnchor: {x: 0.5, y: -0.25}
+  m_ConnectedAnchor: {x: 0.5, y: -0.2}
   m_UseMotor: 0
   m_Motor:
     m_MotorSpeed: 0
