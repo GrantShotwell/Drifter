@@ -5,7 +5,6 @@ using UnityEngine;
 public class SpeedZoom : MonoBehaviour {
     public float baseSize;
     public float multiplier;
-    public bool useMaxSize;
     public float maxSize;
 
     GameObject target;
@@ -19,7 +18,7 @@ public class SpeedZoom : MonoBehaviour {
 
     void LateUpdate() {
         if(!disabled) GetComponent<Camera>().orthographicSize = velocityTracker.averageSpeed * multiplier + baseSize;
-        if(useMaxSize && GetComponent<Camera>().orthographicSize > maxSize) GetComponent<Camera>().orthographicSize = maxSize;
+        if(GetComponent<Camera>().orthographicSize > maxSize) GetComponent<Camera>().orthographicSize = maxSize;
     }
 
     void ChangeTarget(GameObject gObj) {

@@ -6,8 +6,14 @@ public class Geometry {
     public static int left = -1, right = 1, up = 1, down = -1;
     public static int horizontal = 0, vertical = 1;
 
-    public static int direction(float input) {
-        if(input > 0) return 1;
+    public static int Direction(float input) {
+        if(input >= 0) return 1;
+        else return -1;
+    }
+    public static int AngleDirection(float angle) {
+        angle = NormalizeDegree(angle);
+        if(-90 > angle && angle > 90) return 1;
+        else if(Mathf.Abs(angle) == 90) return 0;
         else return -1;
     }
 
@@ -64,12 +70,29 @@ public class Geometry {
         float y = (l1.a * l2.c - l2.a * l1.c) / delta;
         return new Vector2(x, y);
     }
+
+    public static float LawOfCosForAngleC(float a, float b, float c) {
+        return Mathf.Acos((Mathf.Pow(a, 2) + Mathf.Pow(b, 2) - Mathf.Pow(c, 2)) / (2 * a * b)) * Mathf.Rad2Deg;
+    }
+
+    public static bool Exists(float number) { return (!float.IsInfinity(number)) && (!float.IsNaN(number)); }
+    public static bool Exists(Vector2 vector) { return Exists(vector.x) && Exists(vector.y); }
+
+    public static float LimitTo(float number, float limit) {
+        if(Mathf.Abs(number) > Mathf.Abs(limit)) number = limit * Geometry.Direction(number);
+        return number;
+    }
+
+    public static bool IsBetweenRange(float number, float range) {
+        return -range <= number && number <= range;
+    }
 }
 
 public class Line {
     public float a, b, c; //Ax + By = C
     public float X = 0;
     public bool isVertical;
+
     public Line(float A, float B, float C, float x) {
         isVertical = true;
         a = A;
@@ -83,6 +106,7 @@ public class Line {
         b = B;
         c = C;
     }
+
     public float Slope() { return -a; }
     public float Angle() { return Geometry.ConvertToDegrees(Mathf.Atan(Slope())); }
     public float YFromX(float x) {
@@ -108,7 +132,7 @@ public class Line {
     }
 
     public Vector2 PointFromDistance(Vector2 point, float distance, Vector2 direction) {
-        return PointFromDistance(point, distance, Geometry.direction(direction.x - point.x));
+        return PointFromDistance(point, distance, Geometry.Direction(direction.x - point.x));
     }
     public Vector2 PointFromDistance(Vector2 point, float distance, int direction) {
         float theta = Geometry.ConvertToRadians(Angle()) * direction;
@@ -136,7 +160,7 @@ public class Line {
 }
 
 public static class Vector2Extension {
-    public static Vector2 Rotate(this Vector2 v, float degrees) {
+    public static Vector2 Rotate(this Vector2 v, float degrees) { //Stack Overflow
         float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
         float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
 
@@ -148,7 +172,22 @@ public static class Vector2Extension {
     }
 
     public static Vector2 RotateTo(this Vector2 v1, Vector2 v2, float degrees) {
-        if(v1.x > v2.x) return Rotate(v1, -degrees);
-        else return Rotate(v1, degrees);
+        if(Vector2.SignedAngle(v1, v2) > 0) return Rotate(v1, degrees);
+        else return Rotate(v1, -degrees);
+    }
+
+    public static Vector2 RotateFrom(this Vector2 v1, Vector2 v2, float degrees) {
+        if(Vector2.SignedAngle(v1, v2) < 0) return Rotate(v1, degrees);
+        else return Rotate(v1, -degrees);
+    }
+    
+    public static Vector2 FromRotation(this Vector2 v1, Vector2 v2, float degrees) {
+        float rotation = Vector2.SignedAngle(Vector2.right, v2);
+        return Rotate(new Vector2(v1.magnitude, 0), degrees - rotation);
+    }
+
+    public static Vector2 Set(this Vector2 v, Vector2 newVector) {
+        v.Set(newVector.x, newVector.y);
+        return v;
     }
 }

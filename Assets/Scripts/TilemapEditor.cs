@@ -15,17 +15,19 @@ public class TilemapEditor {
         tileList = tilemap.GetTilesBlock(bounds);
     }
 
-    public void PlaceGameObject(string tileName, GameObject gObj) { PlaceGameObject(tileName, gObj, true); }
-    public void PlaceGameObject(string tileName, GameObject gObj, bool removeTile) {
-        for(int n = tilemap.cellBounds.xMin; n < tilemap.cellBounds.xMax; n++) {
-            for(int p = tilemap.cellBounds.yMin; p < tilemap.cellBounds.yMax; p++) {
-                Vector3Int localPlace = new Vector3Int(n, p, (int)tilemap.transform.position.y);
+    public void PlaceGameObject(string tileName, GameObject gObj) { PlaceGameObject(tileName, gObj, true);  }
+    public void PlaceGameObject(string tileName, GameObject gObj, bool removeTile) { PlaceGameObject(tileName, gObj, removeTile, null); }
+    public void PlaceGameObject(string tileName, GameObject gObj, bool removeTile, Transform parent) {
+        for(int x = tilemap.cellBounds.xMin; x < tilemap.cellBounds.xMax; x++) {
+            for(int y = tilemap.cellBounds.yMin; y < tilemap.cellBounds.yMax; y++) {
+                Vector3Int localPlace = new Vector3Int(x, y, (int)tilemap.transform.position.z);
                 if(tilemap.HasTile(localPlace)) {
-                    if(tilemap.GetTile(localPlace)) {
+                    if(tilemap.GetTile(localPlace).name == tileName) {
                         GameObject newObj = Object.Instantiate(gObj);
                         newObj.transform.position = tilemapParent.GetComponent<GridLayout>().CellToWorld(localPlace);
                         Vector3 gridSize = tilemapParent.GetComponent<Grid>().cellSize;
                         newObj.transform.position += gridSize / 2;
+                        if(parent != null) newObj.transform.parent = parent;
                         if(removeTile) tilemap.SetTile(localPlace, null);
                     }
                 }

@@ -14,6 +14,10 @@ TagManager:
   - 
   - 
   - Player
+  - Projectiles
+  - Entities
+  - Objects
+  - Rope
   - 
   - 
   - 
@@ -30,13 +34,9 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Light Obstacles
+  - Light Sources
+  - Ambient Light
   m_SortingLayers:
   - name: Default
     uniqueID: 0

@@ -5,13 +5,22 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class TileObjectTranslator : MonoBehaviour {
-    TilemapEditor editor;
+    [Header("Settings")]
+
+    [Tooltip("When placing the objects, delete the original tiles they are placed on.")]
+    public bool removeTiles = true;
+
+    [Header("Key")]
+
     public string[] tileNames;
+
     public GameObject[] gameObjects;
+
+    TilemapEditor editor;
 
     void Start () {
         editor = new TilemapEditor(gameObject);
         for(int j = 0; j < tileNames.Length; j++)
-            editor.PlaceGameObject(tileNames[j], gameObjects[j]);
+            editor.PlaceGameObject(tileNames[j], gameObjects[j], removeTiles, gameObject.transform);
     }
 }

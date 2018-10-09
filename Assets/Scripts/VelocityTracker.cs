@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class VelocityTracker : MonoBehaviour {
+    [Tooltip("Number of velocities to calculate the average. The larger the value, the less the average will be affected by outliers.")]
     public int storageSize = 100;
     
     float[] previousSpeeds;
     int currentIndex = 0;
     float sum = 0;
-
-    public float averageSpeed;
+    public float averageSpeed { get; private set; }
 
     void Start () {
         previousSpeeds = new float[storageSize];
