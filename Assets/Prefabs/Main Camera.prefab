@@ -21,8 +21,7 @@ GameObject:
   - component: {fileID: 4153934840734580}
   - component: {fileID: 20532632107797538}
   - component: {fileID: 81207583802868432}
-  - component: {fileID: 114698189576521030}
-  - component: {fileID: 114741901849077320}
+  - component: {fileID: 114655208221497724}
   - component: {fileID: 114245619044604674}
   - component: {fileID: 114542689433949320}
   - component: {fileID: 114989504414323316}
@@ -189,7 +188,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
---- !u!114 &114698189576521030
+--- !u!114 &114655208221497724
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -197,24 +196,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1744729333485664}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b52cc6df66d786944bcbd3b44f256f9a, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a7c792f365acbe43ac0a2b3f9bd55b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseSize: 5
-  multiplier: 1
-  maxSize: Infinity
---- !u!114 &114741901849077320
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1744729333485664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6d885714c41b6f4a9ce25646d9c8364, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lerpAmount: 0.1
+  targetIsPlayer: 1
+  target: {fileID: 0}
+  zoom: Speed
+  speedZoom:
+    minSize: 10
+    baseSize: 0
+    maxSize: Infinity
+    multiplier: 1
+  smooth: 1
+  lerpAmount: 50
 --- !u!114 &114989504414323316
 MonoBehaviour:
   m_ObjectHideFlags: 1

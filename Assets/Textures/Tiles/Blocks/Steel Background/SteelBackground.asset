@@ -24,4 +24,4 @@ MonoBehaviour:
     m_RuleTransform: 0
     m_Output: 1
     m_ColliderType: 1
-    m_RandomTransform: 1
+    m_RandomTransform: 0

@@ -9,16 +9,14 @@ public class Rope : MonoBehaviour {
 
     public Color color = Color.white;
 
-    public GameObject ropeCollider;
-
     [Header("Values")]
 
     public float retractRate = 1.0f;
 
-    public Vector2 endpoint;
+    public Vector2 endpoint { get; private set; }
     public bool connected { get; private set; } = false;
     public float length { get; private set; } = 0;
-    private float distance = 0;
+    public float distance { get; private set; } = 0;
     new Rigidbody2D rigidbody;
     LineRenderer lineRenderer;
     #endregion
@@ -35,36 +33,56 @@ public class Rope : MonoBehaviour {
             lineRenderer.SetPositions(points);
         }
     }
-    
+
+    bool hasTension;
     private void FixedUpdate() {
         if(connected) {
             distance = Vector2.Distance(transform.position, endpoint);
-            if(distance > length) {
-                //lerp position -> endpoint// keep gameObject within length of the rope
-                float posLerpAmount = (distance - length) / distance;
-                transform.position = Vector2.Lerp(transform.position, endpoint, posLerpAmount);
+            hasTension = (distance > length);
 
-                if(Geometry.Exists(rigidbody.velocity)) {
-                    rigidbody.velocity = TangentVelocity(gameObject, endpoint);
+            if(hasTension) {
+                #region G _perpendicular (Gp)
+                //solving for the perpendicular component of gravity relative to the endpoint.
 
-                    //'give back' the energy it lost from moving it's position
-                    if(length != 0) {
-                        float ratio = (distance - length) / length;
-                        rigidbody.velocity *= 1 + ratio;
-                    }
-                }
+                float G = Physics2D.gravity.magnitude;
+                float ThetaGE = Vector2.SignedAngle(
+                    endpoint - (Vector2)transform.position,
+                    Physics2D.gravity
+                );
+                float ThetaGR = Vector2.SignedAngle(
+                    Vector2.right,
+                    Physics2D.gravity
+                );
+                float ThetaGpR = ThetaGR - ThetaGE + 90;
+
+                ThetaGE *= Mathf.Deg2Rad; ThetaGpR *= Mathf.Deg2Rad;
+                float Gpx = G * Mathf.Sin(ThetaGE) * Mathf.Cos(ThetaGpR);
+                float Gpy = G * Mathf.Sin(ThetaGE) * Mathf.Sin(ThetaGpR);
+                Vector2 Gp = new Vector2(Gpx, Gpy);
+                #endregion
+
+                Vector2 p = Vector2.Lerp(transform.position, endpoint, (distance - length) / distance);
+                Vector2 v = TangentVelocity(gameObject, endpoint);
+                v *= ((distance - length) / length) + 1.0f;
+                v += Gp * Time.fixedDeltaTime;
+
+                rigidbody.MovePosition((v * Time.fixedDeltaTime) + p);
+                rigidbody.velocity = v;
 
                 distance = length;
             }
         }
+        else hasTension = false;
+    }
+
+    private void OnCollisionStay2D(Collision2D collision) {
+        if(hasTension) length = distance;
     }
     #endregion
 
     #region Functions
     public void ShortenRope(float amount) {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, endpoint - (Vector2)transform.position);
-        if(hit.distance > amount)
-            length -= amount;
+        length -= amount;
     }
 
     public void TightenRope() {
@@ -93,8 +111,10 @@ public class Rope : MonoBehaviour {
         connected = false;
         distance = 0;
     }
-
+    
     public static Vector2 TangentVelocity(GameObject gameObj, Vector2 endpoint) {
+        //return the lerped velocity so that it is tangent to the circle (the circle being one with a center at 'endpoint')
+
         Rigidbody2D rigidbody = gameObj.GetComponent<Rigidbody2D>();
         Transform transform = gameObj.transform;
         Vector2 newVelocity = rigidbody.velocity;
