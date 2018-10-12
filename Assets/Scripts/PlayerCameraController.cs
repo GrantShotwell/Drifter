@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MyStuff;
 
 public class PlayerCameraController : MonoBehaviour {
     #region Variables
@@ -31,6 +32,9 @@ public class PlayerCameraController : MonoBehaviour {
 
     [ConditionalField("smooth")]
     public float lerpAmount = 0.1f;
+
+    [HideInInspector]
+    public CameraLimit limits;
     #endregion
 
     #region Update
@@ -49,19 +53,20 @@ public class PlayerCameraController : MonoBehaviour {
 
     private void Update() {
         #region Position Update
+        Vector2 targetPosition = target.transform.position;
+        if(limits != null) if(limits.position != null) targetPosition = limits.position.Place(targetPosition);
+
         if(smooth) {
-            Vector2 position2D = Vector2.Lerp(
-                transform.position,
-                target.transform.position,
-                lerpAmount * Time.deltaTime
-            );
-            transform.position = (Vector3)position2D
-                + new Vector3(0, 0, transform.position.z);
+            float lerp = lerpAmount;
+            if(limits != null) if(limits.lerpLimit) lerp = limits.lerp;
+
+            Vector2 position2D = Vector2.Lerp(transform.position, targetPosition, lerp);
+            transform.position = (Vector3)position2D + new Vector3(0, 0, transform.position.z);
         }
         else {
             transform.position = new Vector3(
-                target.transform.position.x,
-                target.transform.position.y,
+                targetPosition.x,
+                targetPosition.y,
                 transform.position.z
             );
         }

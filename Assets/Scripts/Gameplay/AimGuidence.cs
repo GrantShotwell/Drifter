@@ -45,7 +45,7 @@ public class AimGuidence : MonoBehaviour {
     }
 
     private void OnPreRender() {
-        camera.GetComponent<LineQueue>().NewLine(start, end, color);
+        //camera.GetComponent<LineQueue>().NewLine(start, end, color);
     }
 
     void Hide() {

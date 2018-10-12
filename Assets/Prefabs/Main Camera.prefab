@@ -22,7 +22,6 @@ GameObject:
   - component: {fileID: 20532632107797538}
   - component: {fileID: 81207583802868432}
   - component: {fileID: 114655208221497724}
-  - component: {fileID: 114245619044604674}
   - component: {fileID: 114542689433949320}
   - component: {fileID: 114989504414323316}
   m_Layer: 0
@@ -162,19 +161,6 @@ AudioListener:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1744729333485664}
   m_Enabled: 1
---- !u!114 &114245619044604674
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1744729333485664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1266248910db3d948af3f5294af1d009, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 3}
-  color: {r: 1, g: 0, b: 0, a: 0.39215687}
 --- !u!114 &114542689433949320
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -208,7 +194,20 @@ MonoBehaviour:
     maxSize: Infinity
     multiplier: 1
   smooth: 1
-  lerpAmount: 50
+  lerpAmount: 0.1
+  limits:
+    position:
+      x:
+        min: 0
+        max: 0
+      y:
+        min: 0
+        max: 0
+    size:
+      min: 0
+      max: 0
+    lerpLimit: 0
+    lerp: 0
 --- !u!114 &114989504414323316
 MonoBehaviour:
   m_ObjectHideFlags: 1
