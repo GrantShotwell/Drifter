@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MyStuff;
 
 public class WatcherController : MonoBehaviour {
+    #region Variables
     public GameObject target;
 
     [System.Serializable]
@@ -32,7 +34,17 @@ public class WatcherController : MonoBehaviour {
     }
     public Eye eye = new Eye();
 
+    Hover hoverScript;
+    TimedActionTracker timedActions = new TimedActionTracker();
+    #endregion
+    private void Start() {
+        hoverScript = GetComponent<Hover>();
+        hoverScript.enabled = false;
+    }
+    
     private void Update() {
+        timedActions.Update();
+
         #region Eye
         eye.light.SetActive(eye.lidState == 1);
         eye.irisLight.SetActive(eye.lidState == 1);
@@ -48,9 +60,9 @@ public class WatcherController : MonoBehaviour {
                 eye.lid1Target = -eye.lidOpened;
                 break;
         }
-
-        eye.lid0.transform.position = Vector2.Lerp(eye.lid0.transform.position, eye.lid0Target + (Vector2)eye.parent.transform.position, eye.lidSpeed);
-        eye.lid1.transform.position = Vector2.Lerp(eye.lid1.transform.position, eye.lid1Target + (Vector2)eye.parent.transform.position, eye.lidSpeed);
+        
+        eye.lid0.transform.position = Vector2.Lerp(eye.lid0.transform.position, eye.lid0Target.Rotate(eye.parent.transform.rotation.eulerAngles.z) + (Vector2)eye.parent.transform.position, eye.lidSpeed);
+        eye.lid1.transform.position = Vector2.Lerp(eye.lid1.transform.position, eye.lid1Target.Rotate(eye.parent.transform.rotation.eulerAngles.z) + (Vector2)eye.parent.transform.position, eye.lidSpeed);
         #endregion
 
         #region Iris
@@ -73,5 +85,16 @@ public class WatcherController : MonoBehaviour {
 
     public void Activate() {
         eye.lidState = 1;
+        timedActions.AddAction(new TimedAction(2, () => {
+            hoverScript.enabled = true;
+        }));
+        timedActions.AddAction(new ContinuousAction(5, 7, () => {
+            float angle = transform.rotation.eulerAngles.z;
+            transform.rotation = Quaternion.Euler(0, 0, angle - (45 * Time.deltaTime));
+            if(180 < transform.rotation.eulerAngles.z) transform.rotation = Quaternion.Euler(0, 0, 0);
+        }));
+        timedActions.AddAction(new TimedAction(7, () => {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }));
     }
 }

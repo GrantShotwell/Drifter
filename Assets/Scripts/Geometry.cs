@@ -71,9 +71,9 @@ public class Geometry {
         return new Vector2(x, y);
     }
 
-    public static float LawOfCosForAngleC(float a, float b, float c) {
-        return Mathf.Acos((Mathf.Pow(a, 2) + Mathf.Pow(b, 2) - Mathf.Pow(c, 2)) / (2 * a * b)) * Mathf.Rad2Deg;
-    }
+    public static float LawOfCosForAngleA(float a, float b, float c) { return LawOfCosForAngleC(c, b, a); }
+    public static float LawOfCosForAngleB(float a, float b, float c) { return LawOfCosForAngleC(a, c, b); }
+    public static float LawOfCosForAngleC(float a, float b, float c) { return Mathf.Acos((Mathf.Pow(a, 2) + Mathf.Pow(b, 2) - Mathf.Pow(c, 2)) / (2 * a * b)) * Mathf.Rad2Deg; }
 
     public static bool Exists(float number) { return (!float.IsInfinity(number)) && (!float.IsNaN(number)); }
     public static bool Exists(Vector2 vector) { return Exists(vector.x) && Exists(vector.y); }
@@ -86,76 +86,84 @@ public class Geometry {
     public static bool IsBetweenRange(float number, float range) {
         return -range <= number && number <= range;
     }
-}
 
-public class Line {
-    public float a, b, c; //Ax + By = C
-    public float X = 0;
-    public bool isVertical;
+    public class Line {
+        public float a, b, c; //Ax + By = C
+        public float X = 0;
+        public bool isVertical;
 
-    public Line(float A, float B, float C, float x) {
-        isVertical = true;
-        a = A;
-        b = B;
-        c = C;
-        X = x;
-    }
-    public Line(float A, float B, float C) {
-        isVertical = false;
-        a = A;
-        b = B;
-        c = C;
-    }
-
-    public float Slope() { return -a; }
-    public float Angle() { return Geometry.ConvertToDegrees(Mathf.Atan(Slope())); }
-    public float YFromX(float x) {
-        return (c - a * x) / b;
-    }
-    public float XFromY(float y) {
-        if(isVertical) return X;
-        else return (c - b * y) / a;
-    }
-    public void ShiftX(float d) {
-        if(isVertical) X += d;
-        else c += d * a;
-    }
-    public void ShiftY(float d) {
-        if(!isVertical) c += d * b;
-    }
-
-    public Vector2 PointFromX(float x) {
-        return new Vector2(x, YFromX(x));
-    }
-    public Vector2 PointFromY(float y) {
-        return new Vector2(XFromY(y), y);
-    }
-
-    public Vector2 PointFromDistance(Vector2 point, float distance, Vector2 direction) {
-        return PointFromDistance(point, distance, Geometry.Direction(direction.x - point.x));
-    }
-    public Vector2 PointFromDistance(Vector2 point, float distance, int direction) {
-        float theta = Geometry.ConvertToRadians(Angle()) * direction;
-        Vector2 point2 = new Vector2(Mathf.Cos(theta) * distance, Mathf.Sin(theta) * distance);
-        point2 = new Vector2(point2.x * direction, point2.y);
-        point2 += point;
-        return point2;
-    }
-    
-    public Vector2 Intersection(Line l2) {
-        Line l1 = this;
-        if(l1.isVertical != l2.isVertical) {
-            if(l1.isVertical) {
-                return new Vector2(l1.X, l2.YFromX(l1.X));
-            }
-            if(l2.isVertical) {
-                return new Vector2(l2.X, l1.YFromX(l2.X));
-            }
+        public Line(float A, float B, float C, float x) {
+            isVertical = true;
+            a = A;
+            b = B;
+            c = C;
+            X = x;
         }
-        float delta = (l1.a * l2.b) - (l2.a * l1.b);
-        float x = (l2.b * l1.c - l1.b * l2.c) / delta;
-        float y = (l1.a * l2.c - l2.a * l1.c) / delta;
-        return new Vector2(x, y);
+        public Line(float A, float B, float C) {
+            isVertical = false;
+            a = A;
+            b = B;
+            c = C;
+        }
+
+        public float Slope() { return -a; }
+        public float Angle() { return Geometry.ConvertToDegrees(Mathf.Atan(Slope())); }
+        public float YFromX(float x) {
+            return (c - a * x) / b;
+        }
+        public float XFromY(float y) {
+            if(isVertical) return X;
+            else return (c - b * y) / a;
+        }
+        public void ShiftX(float d) {
+            if(isVertical) X += d;
+            else c += d * a;
+        }
+        public void ShiftY(float d) {
+            if(!isVertical) c += d * b;
+        }
+
+        public Vector2 PointFromX(float x) {
+            return new Vector2(x, YFromX(x));
+        }
+        public Vector2 PointFromY(float y) {
+            return new Vector2(XFromY(y), y);
+        }
+
+        public Vector2 PointFromDistance(Vector2 point, float distance, Vector2 direction) {
+            return PointFromDistance(point, distance, Geometry.Direction(direction.x - point.x));
+        }
+        public Vector2 PointFromDistance(Vector2 point, float distance, int direction) {
+            float theta = Geometry.ConvertToRadians(Angle()) * direction;
+            Vector2 point2 = new Vector2(Mathf.Cos(theta) * distance, Mathf.Sin(theta) * distance);
+            point2 = new Vector2(point2.x * direction, point2.y);
+            point2 += point;
+            return point2;
+        }
+
+        public Vector2 Intersection(Line l2) {
+            Line l1 = this;
+            if(l1.isVertical != l2.isVertical) {
+                if(l1.isVertical) {
+                    return new Vector2(l1.X, l2.YFromX(l1.X));
+                }
+                if(l2.isVertical) {
+                    return new Vector2(l2.X, l1.YFromX(l2.X));
+                }
+            }
+            float delta = (l1.a * l2.b) - (l2.a * l1.b);
+            float x = (l2.b * l1.c - l1.b * l2.c) / delta;
+            float y = (l1.a * l2.c - l2.a * l1.c) / delta;
+            return new Vector2(x, y);
+        }
+    }
+
+    public class Triangle {
+        public float A, B, C; //side angles
+        public float a, b, c; //side lengths
+        public Triangle() {
+
+        }
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -63,6 +64,62 @@ namespace MyStuff {
             size = Size;
             lerpLimit = true;
             lerp = Lerp;
+        }
+    }
+
+    public class TimedAction {
+        public Action action;
+        public float finalTime, startTime;
+
+        public TimedAction(float delay, Action whenFinished) {
+            action = whenFinished;
+            if(Time.inFixedTimeStep) finalTime = Time.fixedTime + delay;
+            else finalTime = Time.time + delay;
+            startTime = finalTime;
+        }
+
+        public bool TimerDone() {
+            if(Time.inFixedTimeStep) return Time.fixedTime >= finalTime;
+            else return Time.time >= finalTime;
+        }
+
+        public bool Active() {
+            if(Time.inFixedTimeStep) return startTime <= Time.fixedTime && Time.fixedTime <= finalTime;
+            else return startTime <= Time.time && Time.time <= finalTime;
+        }
+
+        public void Invoke() {
+            action();
+        }
+    }
+
+    public class ContinuousAction : TimedAction {
+        public ContinuousAction(float duration, float endDelay, Action duringTime) : base(endDelay, duringTime) {
+            if(Time.inFixedTimeStep) startTime = Time.fixedTime + endDelay - duration;
+            else startTime = Time.time + endDelay - duration;
+        }
+    }
+
+    public class TimedActionTracker {
+        List<TimedAction> timedActions = new List<TimedAction>();
+        bool singleUse;
+
+        public TimedActionTracker(bool deleteWhenDone = true) {
+            singleUse = deleteWhenDone;
+        }
+
+        public void Update() {
+            foreach(TimedAction timedAction in timedActions.ToArray()) {
+                if(timedAction.Active()) timedAction.Invoke();
+                if(timedAction.TimerDone()) {
+                    timedAction.Invoke();
+                    if(singleUse) timedActions.Remove(timedAction);
+                }
+            }
+        }
+
+        public void AddAction(TimedAction timedAction) {
+            timedActions.Add(timedAction);
         }
     }
 }

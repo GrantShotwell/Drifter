@@ -85,7 +85,7 @@ public class Legs : MonoBehaviour {
     void UpdateLegs() {
         for(int j = 0; j < legSets.Length; j++) {
             for(int k = 0; k < legSets[j].Length; k++) {
-                Debug.Assert(segments[j][k] != null, "There are one or more legs that don't exist. Make sure the arrays aren't larger than it needs to be. (add legs via the inspector)");
+                Debug.Assert(segments[j][k] != null, "There are one or more legs that don't exist. Make sure the arrays aren't larger than it needs to be and that each leg object is set up correctly. (add legs via the inspector)");
                 for(int l = 0; l < segments[j][k].Length; l++) {
                     foreach(Transform childTransform in segments[j][k][l].transform)
                         if(childTransform.gameObject.name.Equals("Foot Vector"))
@@ -107,7 +107,7 @@ public class Legs : MonoBehaviour {
                 Vector2[] segmentVectors = GetSegmentVectors(j, k);
 
                 Vector2 endpoint = getEndpoint(j, k, false);
-                //Debug.DrawLine(leg.transform.position, endpoint, Color.red);
+                Debug.DrawLine(leg.transform.position, endpoint, Color.red);
 
                 float endpointAngle = Vector2.SignedAngle(Vector2.right, endpoint - (Vector2)leg.transform.position);
                 endpointAngle *= baseVector.x;
@@ -219,7 +219,7 @@ public class Legs : MonoBehaviour {
                 if(childObj.name.Equals("Segment")) {
                     segmentList.Add(childObj);
                     endSegment = childObj;
-                    if(childObj.GetComponent<Rigidbody2D>().mass > 0.0001) Debug.LogWarning("Segment's Rigidbody2d.mass > 0.0001 (minimum mass). Moving legs may cause parent to move, which might cause issues.");
+                    if(childObj.GetComponent<Rigidbody2D>().mass > 0.0001) Debug.LogWarning("Segment's Rigidbody2d.mass > 0.0001 (minimum mass). Moving legs may cause parent to move, which could cause issues.");
                 }
             }
             if(endSegment == oldEndSegment) foundEnd = true;

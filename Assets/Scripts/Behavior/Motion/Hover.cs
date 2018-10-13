@@ -51,7 +51,6 @@ public class Hover : MonoBehaviour {
         }
         if(lowestDistance <= height) _onGround = true;
         else if(lowestDistance <= height + limit) _nearGround = true;
-
         if(_onGround || _nearGround) {
             Vector2 F = direction * force;
             if(multiplyByMass) F *= rigidbody.mass;
