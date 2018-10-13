@@ -25,7 +25,7 @@ public class AimGuidence : MonoBehaviour {
             camPos = transform.position;
             hit = Physics2D.Raycast(playerPos, mousePos - camPos, Mathf.Infinity, player.GetComponent<PlayerController>().ropeLayermask);
             hitpoint = hit.point;
-            Line rayLine = Geometry.LineFromTwoPoints(playerPos, mousePos);
+            Geometry.Line rayLine = Geometry.LineFromTwoPoints(playerPos, mousePos);
             start = new Vector2(0, 0);
             end = new Vector2(0, 0);
             if(!rayLine.isVertical) {

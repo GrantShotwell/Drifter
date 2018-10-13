@@ -5,6 +5,8 @@ using MyStuff;
 
 public class SpiderLegs : MonoBehaviour {
     #region Variables
+    public float bendy = 0.8f;
+
     [System.Serializable]
     public class Leg {
         public GameObject parent;
@@ -45,6 +47,8 @@ public class SpiderLegs : MonoBehaviour {
             leg.angle.max = Geometry.NormalizeDegree(leg.angle.max);
             leg.segments = GetSegments(leg.parent);
             foreach(Segment segment in leg.segments) {
+                if(segment.isEnd) foreach(Transform child in segment.gameObject.transform)
+                    if(child.gameObject.name == "Foot Vector") leg.foot = child.gameObject;
                 segment.length = MeasureLength(leg, segment);
                 segment.offsetAngle = Geometry.NormalizeDegree(MeasureAngle(leg, segment));
             }
@@ -52,8 +56,31 @@ public class SpiderLegs : MonoBehaviour {
     }
 
     private void Update() {
+        // segment.polygonAngle //  The leg segments (+ a line from segments[0].hinge to foot) make a polygon. What are the angles of that polygon?
         foreach(Leg leg in legs) {
-            for(int j = 0; j < legs.Length; j++) {
+            float storedLength = Vector2.Distance(leg.segments[0].gameObject.transform.position, leg.foot.transform.position);
+            float storedAngle = 0;
+            Geometry.Triangle finalTriangle;
+            for(int j = 0; j < leg.segments.Length; j++) {
+                Segment segment = leg.segments[j];
+                if((!segment.isEnd) && j != leg.segments.Length - 2) {
+                    float bendedLength = Vector2.Distance(leg.segments[j + 1].hinge.anchor, leg.foot.transform.position) * bendy;
+                    Geometry.Triangle triangle = new Geometry.Triangle(segment.length, storedLength, bendedLength);
+                    segment.polygonAngle = triangle.C + storedAngle;
+                    storedLength = Vector2.Distance(leg.segments[j + 1].gameObject.transform.position, leg.foot.transform.position);
+                    storedAngle = triangle.B;
+                } else
+                if(j == leg.segments.Length - 2) { //Second to last segment means there are only 2 segments left (duh). Add the storedLength side and that's 3 for the final triangle.
+                    finalTriangle = new Geometry.Triangle(segment.length, storedLength, leg.segments[j + 1].length);
+                    segment.polygonAngle = finalTriangle.A;
+                    leg.segments[j + 1].polygonAngle = finalTriangle.B;
+                }
+            }
+        }
+
+        // segment.targetAngle //  Now that we have all the polygon's information we could ever need, what are the actual angles of the hinges relative to the coordinate axies?
+        foreach(Leg leg in legs) {
+            for(int j = 0; j < leg.segments.Length; j++) {
 
             }
         }

@@ -161,8 +161,16 @@ public class Geometry {
     public class Triangle {
         public float A, B, C; //side angles
         public float a, b, c; //side lengths
-        public Triangle() {
+        
+        public Triangle(float _a, float _b, float _c) {
+            a = _a; b = _b; c = _c;
+            SolveForAngles();
+        }
 
+        public void SolveForAngles() {
+            LawOfCosForAngleA(a, b, c);
+            LawOfCosForAngleB(a, b, c);
+            LawOfCosForAngleC(a, b, c);
         }
     }
 }

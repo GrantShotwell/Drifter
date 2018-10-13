@@ -121,8 +121,8 @@ public class Rope : MonoBehaviour {
 
         Vector2 adjustedVelocity = rigidbody.velocity * Time.fixedDeltaTime;
         Vector2 relativeVelocity = adjustedVelocity + (Vector2)transform.position;
-        Line l1 = Geometry.LineFromTwoPoints(relativeVelocity, endpoint);
-        Line l2 = Geometry.LineFromAngle(transform.position, Geometry.GetAngle(endpoint, transform.position) - 90);
+        Geometry.Line l1 = Geometry.LineFromTwoPoints(relativeVelocity, endpoint);
+        Geometry.Line l2 = Geometry.LineFromAngle(transform.position, Geometry.GetAngle(endpoint, transform.position) - 90);
         if(!Geometry.AreParallel(l1, l2)) {
             Vector2 pointToLerpTo = Geometry.Intersection(l1, l2) - (Vector2)transform.position;
             if(Geometry.Exists(pointToLerpTo)) {
