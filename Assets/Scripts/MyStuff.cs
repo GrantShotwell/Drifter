@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace MyStuff {
+    #region Geometry
     public class Geometry {
+        #region Methods
         public static int left = -1, right = 1, up = 1, down = -1;
         public static int horizontal = 0, vertical = 1;
 
@@ -24,10 +26,16 @@ namespace MyStuff {
 
         public static float GetAngle(Vector2 v1, Vector2 v2) { return GetAngle(v1.x, v1.y, v2.x, v2.y); }
         public static float GetAngle(float x1, float y1, float x2, float y2) { return ConvertToDegrees(Mathf.Atan2(y1 - y2, x1 - x2)); }
-
+        
+        //Todo: replace the 'while()' with math
         public static float NormalizeDegree(float degr) {
             while(degr < 0) degr += 360;
             while(degr > 360) degr -= 360;
+            return degr;
+        }
+        public static float NormalizeDegree2(float degr) {
+            while(degr < -360) degr += 360;
+            while(degr > +360) degr -= 360;
             return degr;
         }
 
@@ -90,10 +98,11 @@ namespace MyStuff {
         }
 
         public static Vector2 HeadToTailAngle(Vector2 v1, Vector2 v2, float degrees) {
-            Debug.Log(v1.Heading() + ", " + v2.Heading() + ", " + degrees);
             return v2.SetHeading(180.0f - v1.Heading() - degrees);
         }
+        #endregion
 
+        #region Classes
         public class Line {
             public float a, b, c; //Ax + By = C
             public float X = 0;
@@ -166,11 +175,13 @@ namespace MyStuff {
         }
 
         public class Triangle {
-            public float A, B, C; //side angles
-            public float a, b, c; //side lengths
+            public float A, B, C; //angles
+            public float a, b, c; //sides
 
             public Triangle(float _a, float _b, float _c) {
-                a = _a; b = _b; c = _c;
+                a = _a;
+                b = _b;
+                c = _c;
                 SolveForAngles();
             }
 
@@ -179,13 +190,20 @@ namespace MyStuff {
                 B = LawOfCosForAngleB(a, b, c);
                 C = LawOfCosForAngleC(a, b, c);
             }
+
+            public override string ToString() {
+                return base.ToString();
+            }
         }
+        #endregion
     }
+    #endregion
 
     #region Ranges
     [System.Serializable]
     public class Range {
         public static Range infinite = new Range(Mathf.NegativeInfinity, Mathf.Infinity);
+        public float size => Mathf.Abs(max - min);
 
         public float min, max;
         public Range(float minimum = Mathf.NegativeInfinity, float maximum = Mathf.Infinity) {
@@ -198,16 +216,30 @@ namespace MyStuff {
         }
 
         public float Place(float value) {
-            if(min >= value) value = min;
-            if(max <= value) value = max;
+            if(min > value) value = min;
+            if(max < value) value = max;
             return value;
         }
+
+        public override string ToString() {
+            return "[" + min + ", " + max + "]";
+        }
+
+        public static Range operator +(Range range, float value) { return new Range(range.min + value, range.max + value); }
+        public static Range operator -(Range range, float value) { return new Range(range.min - value, range.max - value); }
+        public static Range operator *(Range range, float value) { return new Range(range.min * value, range.max * value); }
+        public static Range operator /(Range range, float value) { return new Range(range.min / value, range.max / value); }
+        public static Range operator %(Range range, float value) { return new Range(range.min % value, range.max % value); }
+        public static Range operator +(Range first, Range secnd) { return new Range(first.min + secnd.min, first.max + secnd.max); }
+        public static Range operator -(Range first, Range secnd) { return new Range(first.min - secnd.min, first.max - secnd.max); }
+        public static Range operator *(Range first, Range secnd) { return new Range(first.min * secnd.min, first.max * secnd.max); }
+        public static Range operator /(Range first, Range secnd) { return new Range(first.min / secnd.min, first.max / secnd.max); }
+        public static Range operator %(Range first, Range secnd) { return new Range(first.min % secnd.min, first.max % secnd.max); }
     }
 
     [System.Serializable]
     public class Range2D {
         public static Range2D infinite = new Range2D(Range.infinite, Range.infinite);
-
         public Range x, y;
         public Range2D(Range X, Range Y) {
             x = X;
@@ -221,6 +253,43 @@ namespace MyStuff {
         public Vector2 Place(Vector2 value) {
             return new Vector2(x.Place(value.x), y.Place(value.y));
         }
+
+        public override string ToString() {
+            return "[" + x + ", " + y + "]";
+        }
+    }
+
+    [System.Serializable]
+    public class AngleRange : Range {
+        public const float lowest = -360, highest = 360;
+        public static AngleRange unlimited = new AngleRange(lowest, highest);
+        public AngleRange(float minimum = -360, float maximum = +360) : base(minimum, maximum) {
+            while(min < -360) min += 360;
+            while(max > +360) max -= 360;
+        }
+
+        public new bool Contains(float angle) {
+            angle = Geometry.NormalizeDegree(angle);
+            return base.Contains(angle) || base.Contains(angle - 360);
+        }
+
+        public new float Place(float angle) {
+            angle = Geometry.NormalizeDegree(angle);
+            if(base.Place(angle - 360) == angle) return angle - 360;
+            return base.Place(angle);
+        }
+
+        public static AngleRange operator +(AngleRange range, float value) { return new AngleRange(range.min + value, range.max + value); }
+        public static AngleRange operator -(AngleRange range, float value) { return new AngleRange(range.min - value, range.max - value); }
+        public static AngleRange operator *(AngleRange range, float value) { return new AngleRange(range.min * value, range.max * value); }
+        public static AngleRange operator /(AngleRange range, float value) { return new AngleRange(range.min / value, range.max / value); }
+        public static AngleRange operator %(AngleRange range, float value) { return new AngleRange(range.min % value, range.max % value); }
+        public static AngleRange operator +(AngleRange first, AngleRange secnd) { return new AngleRange(first.min + secnd.min, first.max + secnd.max); }
+        public static AngleRange operator -(AngleRange first, AngleRange secnd) { return new AngleRange(first.min - secnd.min, first.max - secnd.max); }
+        public static AngleRange operator *(AngleRange first, AngleRange secnd) { return new AngleRange(first.min * secnd.min, first.max * secnd.max); }
+        public static AngleRange operator /(AngleRange first, AngleRange secnd) { return new AngleRange(first.min / secnd.min, first.max / secnd.max); }
+        public static AngleRange operator %(AngleRange first, AngleRange secnd) { return new AngleRange(first.min % secnd.min, first.max % secnd.max); }
+
     }
     #endregion
 
@@ -305,6 +374,22 @@ namespace MyStuff {
         }
     }
     #endregion
+    
+    public static class Debugger {
+        public static void DrawPinwheel(Vector2 origin, float degree) { DrawPinwheel(origin, degree, 0, Color.white); }
+        public static void DrawPinwheel(Vector2 origin, float degree, Color color) { DrawPinwheel(origin, degree, 0, color); }
+        public static void DrawPinwheel(Vector2 origin, float degree, float displacement) { DrawPinwheel(origin, degree, displacement, Color.white); }
+        public static void DrawPinwheel(Vector2 origin, float degree, float displacement, Color color) {
+            Range range = new Range(0, 360) + displacement;
+            float angle = range.min;
+            Vector2 direction = Vector2.right.Rotate(angle);
+            while(range.Contains(angle)) {
+                Debug.DrawRay(origin, direction, color);
+                direction = direction.Rotate(degree);
+                angle += degree;
+            }
+        }
+    }
 }
 
 public static class Vector2Extension {

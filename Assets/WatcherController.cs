@@ -35,13 +35,25 @@ public class WatcherController : MonoBehaviour {
     public Eye eye = new Eye();
 
     Hover hoverScript;
+    float defaultHeight;
+    SpiderLegs legScript;
+    Follow followScript;
     TimedActionTracker timedActions = new TimedActionTracker();
+    new Rigidbody2D rigidbody;
     #endregion
+
     private void Start() {
         hoverScript = GetComponent<Hover>();
         hoverScript.enabled = false;
+        defaultHeight = hoverScript.height;
+        legScript = GetComponent<SpiderLegs>();
+        legScript.enabled = false;
+        followScript = GetComponent<Follow>();
+        followScript.enabled = false;
+        rigidbody = GetComponent<Rigidbody2D>();
     }
-    
+
+    bool keepRotation;
     private void Update() {
         timedActions.Update();
 
@@ -81,20 +93,31 @@ public class WatcherController : MonoBehaviour {
         }
         #endregion
         #endregion
+
+        hoverScript.height = defaultHeight + Mathf.Cos(Time.time);
+        float targetRotation = Mathf.Sin(Time.time);
+        if(keepRotation) {
+            float rotation = transform.rotation.eulerAngles.z;
+            if(rotation > 180) rotation -= 360;
+            rigidbody.AddTorque(targetRotation - rigidbody.angularVelocity - rotation, ForceMode2D.Force);
+        }
     }
 
     public void Activate() {
         eye.lidState = 1;
-        timedActions.AddAction(new TimedAction(2, () => {
+        timedActions.AddAction(new TimedAction(1, () => {
             hoverScript.enabled = true;
+            legScript.enabled = true;
         }));
-        timedActions.AddAction(new ContinuousAction(5, 7, () => {
-            float angle = transform.rotation.eulerAngles.z;
-            transform.rotation = Quaternion.Euler(0, 0, angle - (45 * Time.deltaTime));
-            if(180 < transform.rotation.eulerAngles.z) transform.rotation = Quaternion.Euler(0, 0, 0);
+        timedActions.AddAction(new TimedAction(2, () => {
+            rigidbody.AddTorque(-360, ForceMode2D.Force);
         }));
-        timedActions.AddAction(new TimedAction(7, () => {
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+        timedActions.AddAction(new ContinuousAction(1, 2, () => {
+            if(180 < transform.rotation.eulerAngles.z) keepRotation = true;
+        }));
+        timedActions.AddAction(new TimedAction(3, () => {
+            followScript.enabled = true;
+            keepRotation = true;
         }));
     }
 }

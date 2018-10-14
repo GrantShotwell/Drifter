@@ -10,6 +10,8 @@ public class SpiderLegs : MonoBehaviour {
 
     [System.Serializable]
     public class Leg {
+        [Separator]
+
         public GameObject parent;
 
         [HideInInspector]
@@ -18,25 +20,40 @@ public class SpiderLegs : MonoBehaviour {
         [HideInInspector]
         public GameObject foot;
 
-        public Range angleRange;
+        public bool relativeAngles = true;
+
+        public AngleRange angleRange;
+        public GameObject gameObject;
+        public float rotation => gameObject.transform.rotation.eulerAngles.z;
+        public AngleRange effectiveRange {
+            get {
+                if(relativeAngles) return angleRange + rotation;
+                else return angleRange;
+            }
+        }
 
         public Vector2 defaultPosition;
 
         [HideInInspector]
         public float length;
-
-        public bool startFromMin = false;
+        
+        public bool leftSide;
+        public bool startFromMin => leftSide;
 
         [HideInInspector]
         public Vector2 targetFoot;
 
+        public Vector2 baseVector => segments[0].hingeVector;
+        public float targetAngle => Vector2.SignedAngle(Vector2.right, targetFoot - baseVector);
         [HideInInspector]
-        public float targetAngle;
+        public float totalOffsetAngle = 0;
+        [HideInInspector]
+        public bool temporaryFooting = false;
     }
     public class Segment {
         public GameObject gameObject;
         public HingeJoint2D hinge;
-        public Vector2 hingeVector { get { return hinge.anchor + (Vector2)gameObject.transform.position; } }
+        public Vector2 hingeVector => hinge.anchor.Rotate(gameObject.transform.rotation.eulerAngles.z) + (Vector2)gameObject.transform.position;
         public float length;
         public float polygonAngle, targetAngle, offsetAngle;
         public bool isEnd;
@@ -53,14 +70,15 @@ public class SpiderLegs : MonoBehaviour {
     #region Update
     private void Start() {
         foreach(Leg leg in legs) {
-            leg.angleRange.min = Geometry.NormalizeDegree(leg.angleRange.min);
-            leg.angleRange.max = Geometry.NormalizeDegree(leg.angleRange.max);
+            leg.gameObject = gameObject;
+            leg.parent.transform.rotation = Quaternion.Euler(0, 0, 0);
             leg.segments = GetSegments(leg.parent);
             foreach(Segment segment in leg.segments) {
                 if(segment.isEnd) foreach(Transform child in segment.gameObject.transform)
                     if(child.gameObject.name == "Foot Vector") leg.foot = child.gameObject;
                 segment.length = MeasureLength(leg, segment);
-                segment.offsetAngle = Geometry.NormalizeDegree(MeasureAngle(leg, segment));
+                segment.offsetAngle = MeasureAngle(leg, segment) - leg.totalOffsetAngle;
+                leg.totalOffsetAngle += segment.offsetAngle;
             }
             leg.length = MeasureLength(leg);
         }
@@ -76,42 +94,47 @@ public class SpiderLegs : MonoBehaviour {
         /// Loop 2 - Find a polygon for that leg. We can find the angles of that polygot by separating it into multiple triangles and using Geometry.LawOfCos to find the angles.
         /// Loop 3 - We have a polygon. Great. We can finally find the angles of the hinges.
         /// </summary>
-        
+
         // leg.endpoint //  We need to know where to actually put the leg. Finding this also gives us leg.targetAngle.
         foreach(Leg leg in legs) {
-            float legAngle = Geometry.NormalizeDegree(Vector2.SignedAngle(Vector2.right, leg.targetFoot - leg.segments[0].hingeVector));
+            Debug.DrawRay(leg.baseVector, Vector2.right.Rotate(leg.effectiveRange.min));
+            Debug.DrawRay(leg.baseVector, Vector2.right.Rotate(leg.effectiveRange.max));
+
+            float legAngle = Vector2.SignedAngle(Vector2.right, leg.targetFoot - leg.segments[0].hingeVector);
             float legDistance = Vector2.Distance(leg.segments[0].hingeVector, leg.targetFoot);
-            bool condition = (!leg.angleRange.Contains(legAngle)) || !(legDistance > leg.length * bendy);
-            if(condition) {
+            AngleRange range = leg.effectiveRange;
+            if((!range.Contains(legAngle)) || legDistance > leg.length || leg.temporaryFooting) {
                 float start = new float(), end = new float(), deltaAngle = new float();
-                if(leg.startFromMin) {
-                    start = leg.angleRange.min;
-                    end = leg.angleRange.max;
+                bool fromMinimum;
+                if(legDistance > leg.length) fromMinimum = !leg.startFromMin;
+                else fromMinimum = leg.startFromMin;
+                if(fromMinimum) {
+                    start = range.min;
+                    end = range.max;
                 }
                 else {
-                    start = leg.angleRange.max;
-                    end = leg.angleRange.min;
+                    start = range.max;
+                    end = range.min;
                 }
-                deltaAngle = angleSeparation * Geometry.Direction(start - end);
+                deltaAngle = - angleSeparation * Geometry.Direction(start - end);
                 Vector2 origin = leg.segments[0].hingeVector;
                 Vector2 direction = Vector2.right.Rotate(start);
                 float currentAngle = start;
                 RaycastHit2D hit = Physics2D.Raycast(origin, direction, leg.length * bendy);
-                while(hit.collider == null && leg.angleRange.Contains(currentAngle + deltaAngle)) {
-                    direction.Rotate(deltaAngle);
+                while(hit.collider == null && range.Contains(currentAngle + deltaAngle)) {
+                    direction = direction.Rotate(deltaAngle);
                     currentAngle += deltaAngle;
                     hit = Physics2D.Raycast(origin, direction, leg.length * bendy);
                 }
                 if(hit.collider == null) {
                     leg.targetFoot = leg.defaultPosition + leg.segments[0].hingeVector;
-                    leg.targetAngle = Vector2.SignedAngle(Vector2.right, leg.defaultPosition);
+                    leg.temporaryFooting = true;
                 }
                 else {
                     leg.targetFoot = hit.point;
-                    leg.targetAngle = currentAngle;
+                    leg.temporaryFooting = false;
                 }
             }
-            Debug.DrawLine(leg.segments[0].hingeVector, leg.targetFoot, Color.cyan);
         }
 
         // segment.polygonAngle //  The leg segments (+ a line from segments[0].hinge to foot) make a polygon. What are the angles of that polygon?
@@ -125,38 +148,26 @@ public class SpiderLegs : MonoBehaviour {
                 if((!segment.isEnd) && (!nextSeg.isEnd)) { //Geometry.Triangle is useful because it determines all of the angles of the triange when it is instantiated when given only the side lengths
                     float bendedLength = Vector2.Distance(nextSeg.hingeVector, leg.targetFoot) * bendy;
                     triangle = new Geometry.Triangle(segment.length, storedLength, bendedLength);
-                    segment.polygonAngle = triangle.C + storedAngle;
+                    segment.polygonAngle = triangle.B + storedAngle;
                     storedLength = Vector2.Distance(nextSeg.gameObject.transform.position, leg.targetFoot);
-                    storedAngle = triangle.B;
+                    storedAngle = triangle.C;
                 } else
                 if(j == leg.segments.Length - 2) { //Second to last segment means there are only 2 segments left (duh). Add the storedLength side and that's 3 sides for the final triangle.
                     triangle = new Geometry.Triangle(segment.length, nextSeg.length, storedLength);
                     segment.polygonAngle = triangle.B;
                     nextSeg.polygonAngle = triangle.C;
                 }
-                if(triangle != null) Debug.Log(triangle.A + " " + triangle.B + " " + triangle.C);
             }
         }
 
         // segment.targetAngle //  Now that we have all the polygon's information we could ever need, what are the actual angles of the hinges relative to the coordinate axies (Vector2.right)?
         foreach(Leg leg in legs) {
-            Vector2 prevSeg = leg.targetFoot - leg.segments[0].hingeVector;
-
-            Debug.DrawLine(Vector2.zero, prevSeg);
-            Vector2 firstSeg = new Vector2(leg.segments[0].length, 0).Rotate(prevSeg.Heading() + leg.segments[0].polygonAngle);
-            leg.segments[0].targetAngle = firstSeg.Heading();
-            SetHingeAngle(leg.segments[0].hinge, leg.segments[0].targetAngle);
-            prevSeg = firstSeg;
-
-            for(int j = 1; j < leg.segments.Length; j++) {
+            for(int j = 0; j < leg.segments.Length; j++) {
                 Segment segment = leg.segments[j];
-
-                Vector2 currentSegment = new Vector2(segment.length, 0);
-                currentSegment = Geometry.HeadToTailAngle(prevSeg, currentSegment, segment.polygonAngle);
-                currentSegment = currentSegment.SetY(-currentSegment.y);
-                segment.targetAngle = currentSegment.Heading();
-                SetHingeAngle(segment.hinge, segment.targetAngle);
-                prevSeg = currentSegment;
+                if(leg.leftSide) segment.polygonAngle = -segment.polygonAngle;
+                if(j == 0) segment.targetAngle = segment.polygonAngle + leg.targetAngle - 360 - leg.rotation;
+                else segment.targetAngle = 180 + segment.polygonAngle;
+                SetHingeAngle(segment.hinge, segment.targetAngle + segment.offsetAngle);
             }
         }
         #endregion
@@ -165,7 +176,7 @@ public class SpiderLegs : MonoBehaviour {
 
     #region Functions
     void SetHingeAngle(HingeJoint2D hinge, float angle) {
-        angle = -angle;
+        angle = Geometry.NormalizeDegree2(-angle);
         hinge.useLimits = true;
         JointAngleLimits2D limit = hinge.limits;
         limit.min = angle;
@@ -232,8 +243,8 @@ public class SpiderLegs : MonoBehaviour {
             if(leg.segments[j] == segment) index = j;
 
         if(index >= 0) {
-            if(segment.isEnd) return Vector2.SignedAngle(segment.hingeVector, leg.foot.transform.position);
-            else return Vector2.SignedAngle(segment.hingeVector, leg.segments[index + 1].hingeVector);
+            if(segment.isEnd) return Geometry.GetAngle(segment.hingeVector, leg.foot.transform.position);
+            else return Geometry.GetAngle(segment.hingeVector, leg.segments[index + 1].hingeVector);
         }
         else {
             Debug.LogError("[Internal Error] Arguments of 'MesureAngle(Leg, Segment)' were invalid. The segment could not be found within the given leg.");
@@ -245,3 +256,20 @@ public class SpiderLegs : MonoBehaviour {
     }
     #endregion
 }
+
+// Graveyard of "I worked too hard on this to delete it but now I realise that I didn't need it"
+/* 
+ * Vector2 prevSeg = leg.targetFoot - leg.segments[0].hingeVector;
+ * Debug.DrawLine(Vector2.zero, prevSeg);
+ * Vector2 firstSeg = new Vector2(leg.segments[0].length, 0).Rotate(prevSeg.Heading() + leg.segments[0].polygonAngle);
+ * leg.segments[0].targetAngle = firstSeg.Heading();
+ * SetHingeAngle(leg.segments[0].hinge, leg.segments[0].targetAngle);
+ * prevSeg = firstSeg;
+ * 
+ * Vector2 currentSegment = new Vector2(segment.length, 0);
+ * currentSegment = Geometry.HeadToTailAngle(prevSeg, currentSegment, segment.polygonAngle);
+ * currentSegment = currentSegment.SetY(-currentSegment.y);
+ * segment.targetAngle = currentSegment.Heading();
+ * prevSeg = currentSegment;
+ * 
+ */
