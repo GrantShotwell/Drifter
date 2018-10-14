@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MyStuff;
 
 public class AimGuidence : MonoBehaviour {
     public Material material;
