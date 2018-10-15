@@ -99,6 +99,7 @@ public class SpiderLegs : MonoBehaviour {
         foreach(Leg leg in legs) {
             Debug.DrawRay(leg.baseVector, Vector2.right.Rotate(leg.effectiveRange.min));
             Debug.DrawRay(leg.baseVector, Vector2.right.Rotate(leg.effectiveRange.max));
+            Debug.DrawLine(leg.baseVector, leg.targetFoot, Color.cyan);
 
             float legAngle = Vector2.SignedAngle(Vector2.right, leg.targetFoot - leg.segments[0].hingeVector);
             float legDistance = Vector2.Distance(leg.segments[0].hingeVector, leg.targetFoot);
@@ -165,7 +166,7 @@ public class SpiderLegs : MonoBehaviour {
             for(int j = 0; j < leg.segments.Length; j++) {
                 Segment segment = leg.segments[j];
                 if(leg.leftSide) segment.polygonAngle = -segment.polygonAngle;
-                if(j == 0) segment.targetAngle = segment.polygonAngle + leg.targetAngle - 360 - leg.rotation;
+                if(j == 0) segment.targetAngle = segment.polygonAngle + leg.targetAngle - leg.rotation - 360;
                 else segment.targetAngle = 180 + segment.polygonAngle;
                 SetHingeAngle(segment.hinge, segment.targetAngle + segment.offsetAngle);
             }
@@ -176,7 +177,7 @@ public class SpiderLegs : MonoBehaviour {
 
     #region Functions
     void SetHingeAngle(HingeJoint2D hinge, float angle) {
-        angle = Geometry.NormalizeDegree2(-angle);
+        angle = AngleRange.Normalize(-angle);
         hinge.useLimits = true;
         JointAngleLimits2D limit = hinge.limits;
         limit.min = angle;

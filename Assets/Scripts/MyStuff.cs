@@ -262,7 +262,7 @@ namespace MyStuff {
     [System.Serializable]
     public class AngleRange : Range {
         public const float lowest = -360, highest = 360;
-        public static AngleRange unlimited = new AngleRange(lowest, highest);
+        public static AngleRange full = new AngleRange(lowest, highest);
         public AngleRange(float minimum = -360, float maximum = +360) : base(minimum, maximum) {
             while(min < -360) min += 360;
             while(max > +360) max -= 360;
@@ -277,6 +277,10 @@ namespace MyStuff {
             angle = Geometry.NormalizeDegree(angle);
             if(base.Place(angle - 360) == angle) return angle - 360;
             return base.Place(angle);
+        }
+
+        public static float Normalize(float angle) {
+            return angle - ((int)(angle / 360) * 360f);
         }
 
         public static AngleRange operator +(AngleRange range, float value) { return new AngleRange(range.min + value, range.max + value); }
@@ -374,7 +378,8 @@ namespace MyStuff {
         }
     }
     #endregion
-    
+
+    #region Debug
     public static class Debugger {
         public static void DrawPinwheel(Vector2 origin, float degree) { DrawPinwheel(origin, degree, 0, Color.white); }
         public static void DrawPinwheel(Vector2 origin, float degree, Color color) { DrawPinwheel(origin, degree, 0, color); }
@@ -390,6 +395,7 @@ namespace MyStuff {
             }
         }
     }
+    #endregion
 }
 
 public static class Vector2Extension {

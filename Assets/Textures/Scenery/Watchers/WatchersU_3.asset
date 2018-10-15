@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: WatchersU_3
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 21300014, guid: dcc5f84f411563e42bbbd07c71deface, type: 3}
+  m_Sprite: {fileID: 21300018, guid: 402b4c58d11f6dd439856f9ed2c331cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
