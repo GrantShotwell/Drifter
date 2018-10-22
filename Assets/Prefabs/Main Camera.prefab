@@ -23,7 +23,8 @@ GameObject:
   - component: {fileID: 81207583802868432}
   - component: {fileID: 114655208221497724}
   - component: {fileID: 114542689433949320}
-  - component: {fileID: 114989504414323316}
+  - component: {fileID: 114867544052905918}
+  - component: {fileID: 114907103842016680}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -31,15 +32,15 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1836530120623998
+--- !u!1 &1965195296881070
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4957282862718892}
-  - component: {fileID: 20640665431020526}
+  - component: {fileID: 4026022556725074}
+  - component: {fileID: 20639496015882192}
   m_Layer: 0
   m_Name: Lighting Camera
   m_TagString: Untagged
@@ -47,6 +48,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!4 &4026022556725074
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1965195296881070}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4153934840734580}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4153934840734580
 Transform:
   m_ObjectHideFlags: 1
@@ -57,21 +71,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4957282862718892}
+  - {fileID: 4026022556725074}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4957282862718892
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1836530120623998}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4153934840734580}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &20532632107797538
@@ -114,12 +115,12 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!20 &20640665431020526
+--- !u!20 &20639496015882192
 Camera:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1836530120623998}
+  m_GameObject: {fileID: 1965195296881070}
   m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 2
@@ -134,7 +135,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
+  near clip plane: 0
   far clip plane: 1000
   field of view: 90
   orthographic: 1
@@ -208,7 +209,19 @@ MonoBehaviour:
       max: 0
     lerpLimit: 0
     lerp: 0
---- !u!114 &114989504414323316
+--- !u!114 &114867544052905918
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1744729333485664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2ede7b8ccd8fbe40b51ba7a0edbba1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detection: 
+--- !u!114 &114907103842016680
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -239,7 +252,7 @@ MonoBehaviour:
     type: 2}
   AmbientLightBlurMaterial: {fileID: 2100000, guid: a359593f98c7f7740b07a09ac6d11e43,
     type: 2}
-  LightCamera: {fileID: 20640665431020526}
+  LightCamera: {fileID: 20639496015882192}
   LightSourcesLayer: 30
   AmbientLightLayer: 31
   LightObstaclesLayer: 29

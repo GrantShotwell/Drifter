@@ -9,6 +9,7 @@ public class Rope : MonoBehaviour {
     [Header("Attributes")]
 
     public Color color = Color.white;
+    public float minimumLength = 0.1f;
 
     [Header("Values")]
 
@@ -37,6 +38,7 @@ public class Rope : MonoBehaviour {
 
     bool hasTension;
     private void FixedUpdate() {
+        if(connected && GetComponent<Healthbar>().health == 0) Disconnect();
         if(connected) {
             distance = Vector2.Distance(transform.position, endpoint);
             hasTension = (distance > length);
@@ -77,13 +79,14 @@ public class Rope : MonoBehaviour {
     }
 
     private void OnCollisionStay2D(Collision2D collision) {
-        if(hasTension) length = distance;
+        if(hasTension) length = distance + 0.1f;
     }
     #endregion
 
     #region Functions
     public void ShortenRope(float amount) {
         length -= amount;
+        if(length < minimumLength) length = minimumLength;
     }
 
     public void TightenRope() {

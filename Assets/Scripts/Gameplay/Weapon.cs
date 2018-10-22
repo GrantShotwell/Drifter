@@ -106,7 +106,6 @@ public class Weapon : MonoBehaviour {
             && current + 1 >= projectiles.Length //last projectile fired wasn't the last one in the chain
             )
         ) {
-            Debug.Log(timeSinceFire);
             canFire = false;
             timeSinceFire = 0;
             ForceFire(angle);

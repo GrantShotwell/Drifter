@@ -44,6 +44,7 @@ public class Healthbar : MonoBehaviour {
     public int health { get; private set; }
     public int overflow { get; private set; }
     public float lastTimeChanged { get; private set; }
+    public bool invincible => invincibilityLeft > 0;
     #endregion
 
     #region Update

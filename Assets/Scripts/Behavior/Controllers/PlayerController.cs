@@ -5,6 +5,9 @@ using MyStuff;
 
 public class PlayerController : MonoBehaviour {
     #region Variables
+    public bool EXPLOSIONS = false;
+    public GameObject explosion;
+
     [Tooltip("Layermask for the rope/puller raycast.")]
     public LayerMask ropeLayermask;
 
@@ -21,6 +24,7 @@ public class PlayerController : MonoBehaviour {
     Puller puller;
     Vector2 mousePos;
     Color originalColor;
+    AimGuidence aimGuidence;
     #endregion
 
     #region Update
@@ -32,6 +36,7 @@ public class PlayerController : MonoBehaviour {
         weapon = GetComponent<Weapon>();
         rope = GetComponent<Rope>();
         puller = GetComponent<Puller>();
+        aimGuidence = GetComponent<AimGuidence>();
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
@@ -46,40 +51,51 @@ public class PlayerController : MonoBehaviour {
         #endregion
 
         #region Input
-        if(Input.GetButtonDown("Destroy Connection")) {
-            rope.Disconnect();
-            puller.Disconnect();
+        if(healthbar.health != 0) {
+            if(Input.GetButtonDown("Destroy Connection")) {
+                rope.Disconnect();
+                puller.Disconnect();
+            }
+            if(Input.GetButton("Attack")) {
+                weapon.Fire(Geometry.GetAngle(transform.position, mousePos));
+            }
+
+            float horizonalMovement = Input.GetAxis("Horizontal") * Time.deltaTime;
+            float verticalMovement = Input.GetAxis("Vertical") * Time.deltaTime;
+            Vector2 movement = new Vector2(horizonalMovement, verticalMovement);
+            if(IsGrounded()) {
+                movement.y = 0;
+                movement *= groundSpeed;
+            }
+            else movement *= airSpeed;
+            transform.Translate(new Vector3(movement.x, movement.y, 0));
         }
-        if(Input.GetButton("Attack")) {
-            weapon.Fire(Geometry.GetAngle(transform.position, mousePos));
-        }
-        
-        float horizonalMovement = Input.GetAxis("Horizontal") * Time.deltaTime;
-        float verticalMovement = Input.GetAxis("Vertical") * Time.deltaTime;
-        Vector2 movement = new Vector2(horizonalMovement, verticalMovement);
-        if(IsGrounded()) {
-            movement.y = 0;
-            movement *= groundSpeed;
-        }
-        else movement *= airSpeed;
-        transform.Translate(new Vector3(movement.x, movement.y, 0));
         #endregion
     }
 
     private void LateUpdate() {
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        if(Input.GetButtonDown("Toggle Puller")) {
-            if(puller.isConnected)
-                puller.Disconnect();
-            else {
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, mousePos - (Vector2)transform.position, Mathf.Infinity, ropeLayermask.value);
-                if(hit.collider != null && hit.distance <= puller.maxDistance) puller.Connect(hit.point);
+        if(healthbar.health != 0) {
+            if(Input.GetButtonDown("Toggle Puller")) {
+                if(puller.isConnected)
+                    puller.Disconnect();
+                else {
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, mousePos - (Vector2)transform.position, Mathf.Infinity, ropeLayermask.value);
+                    if(hit.collider != null && hit.distance <= puller.maxDistance) puller.Connect(hit.point);
+                }
             }
-        }
-        if(Input.GetButtonDown("Make Rope")) {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, mousePos - (Vector2)transform.position, Mathf.Infinity, ropeLayermask);
-            if(hit.collider != null) rope.Connect(hit.point);
+            if(Input.GetButtonDown("Make Rope")) {
+                if(EXPLOSIONS) {
+                    GameObject exp = Instantiate(explosion);
+                    exp.transform.position = mousePos;
+                    //exp.transform.rotation = Quaternion.Euler(0, 0, 90 * (int)Random.Range(0, 3));
+                }
+                else {
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, mousePos - (Vector2)transform.position, Mathf.Infinity, ropeLayermask);
+                    if(hit.collider != null) rope.Connect(hit.point);
+                }
+            }
         }
     }
 
@@ -100,6 +116,7 @@ public class PlayerController : MonoBehaviour {
         transform.localScale = new Vector3(0, 0, 0);
         rigidbody.constraints = RigidbodyConstraints2D.FreezePosition;
         dead = true;
+        aimGuidence.hidden = true;
     }
 
     public void OnReanimate() {

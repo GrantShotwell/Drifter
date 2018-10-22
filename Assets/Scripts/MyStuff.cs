@@ -204,6 +204,7 @@ namespace MyStuff {
     public class Range {
         public static Range infinite = new Range(Mathf.NegativeInfinity, Mathf.Infinity);
         public float size => Mathf.Abs(max - min);
+        public float random => UnityEngine.Random.Range(min, max);
 
         public float min, max;
         public Range(float minimum = Mathf.NegativeInfinity, float maximum = Mathf.Infinity) {
@@ -225,6 +226,7 @@ namespace MyStuff {
             return "[" + min + ", " + max + "]";
         }
 
+        #region Operators
         public static Range operator +(Range range, float value) { return new Range(range.min + value, range.max + value); }
         public static Range operator -(Range range, float value) { return new Range(range.min - value, range.max - value); }
         public static Range operator *(Range range, float value) { return new Range(range.min * value, range.max * value); }
@@ -235,6 +237,7 @@ namespace MyStuff {
         public static Range operator *(Range first, Range secnd) { return new Range(first.min * secnd.min, first.max * secnd.max); }
         public static Range operator /(Range first, Range secnd) { return new Range(first.min / secnd.min, first.max / secnd.max); }
         public static Range operator %(Range first, Range secnd) { return new Range(first.min % secnd.min, first.max % secnd.max); }
+        #endregion
     }
 
     [System.Serializable]
@@ -293,7 +296,6 @@ namespace MyStuff {
         public static AngleRange operator *(AngleRange first, AngleRange secnd) { return new AngleRange(first.min * secnd.min, first.max * secnd.max); }
         public static AngleRange operator /(AngleRange first, AngleRange secnd) { return new AngleRange(first.min / secnd.min, first.max / secnd.max); }
         public static AngleRange operator %(AngleRange first, AngleRange secnd) { return new AngleRange(first.min % secnd.min, first.max % secnd.max); }
-
     }
     #endregion
 
@@ -324,13 +326,16 @@ namespace MyStuff {
     #region Actions
     public class TimedAction {
         public Action action;
-        public float finalTime, startTime;
+        public float startTime, finalTime;
+        public string tag;
 
-        public TimedAction(float delay, Action whenFinished) {
+        public TimedAction(float delay, Action whenFinished) : this(delay, "default", whenFinished) {}
+        public TimedAction(float delay, string tag, Action whenFinished) {
             action = whenFinished;
             if(Time.inFixedTimeStep) finalTime = Time.fixedTime + delay;
             else finalTime = Time.time + delay;
             startTime = finalTime;
+            this.tag = tag;
         }
 
         public bool TimerDone() {
@@ -349,9 +354,12 @@ namespace MyStuff {
     }
 
     public class ContinuousAction : TimedAction {
-        public ContinuousAction(float duration, float endDelay, Action duringTime) : base(endDelay, duringTime) {
-            if(Time.inFixedTimeStep) startTime = Time.fixedTime + endDelay - duration;
-            else startTime = Time.time + endDelay - duration;
+        public ContinuousAction(float duration, Action duringTime) : this(0.0f, duration, duringTime) {}
+        public ContinuousAction(float duration, string tag, Action duringTime) : this(0.0f, duration, tag, duringTime) {}
+        public ContinuousAction(float delay, float duration, Action duringTime) : this(delay + duration, duration, "default", duringTime) {}
+        public ContinuousAction(float delay, float duration, string tag, Action duringTime) : base(delay + duration, tag, duringTime) {
+            if(Time.inFixedTimeStep) startTime = Time.fixedTime + delay;
+            else startTime = Time.time + delay;
         }
     }
 
@@ -373,9 +381,9 @@ namespace MyStuff {
             }
         }
 
-        public void AddAction(TimedAction timedAction) {
-            timedActions.Add(timedAction);
-        }
+        public void AddAction(TimedAction timedAction) { timedActions.Add(timedAction); }
+
+        public void RemoveTagged(string tag) { foreach(TimedAction action in timedActions) if(action.tag == tag) timedActions.Remove(action); }
     }
     #endregion
 
@@ -396,22 +404,25 @@ namespace MyStuff {
         }
     }
     #endregion
+
+    #region MyFunctions
+    public static class MyFunctions {
+        public static T RandomItem<T>(T[] array) { return array[UnityEngine.Random.Range(0, array.Length - 1)]; }
+    }
+    #endregion
+
+    public enum UpdateLocation { Update, FixedUpdate, None }
 }
 
 public static class Vector2Extension {
-    public static float Heading(this Vector2 v) {
-        return Vector2.SignedAngle(Vector2.right, v);
-    }
+    public static float Heading(this Vector2 v) { return Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg; }
 
-    public static Vector2 SetHeading(this Vector2 v, float degrees) {
-        return new Vector2(v.magnitude, 0).Rotate(degrees);
-    }
+    public static Vector2 SetHeading(this Vector2 v, float degrees)   { return new Vector2(v.magnitude, 0).Rotate(degrees); }
+    public static Vector2 SetMagnitude(this Vector2 v, float magnitude) { return new Vector2(magnitude, 0).Rotate(v.Heading()); }
 
     public static Vector2 Rotate(this Vector2 v, float degrees) { //Stack Overflow
-        float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
-        float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
-        float x = v.x;
-        float y = v.y;
+        float sin = Mathf.Sin(degrees * Mathf.Deg2Rad), cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
+        float x = v.x, y = v.y;
         v.x = (cos * x) - (sin * y);
         v.y = (sin * x) + (cos * y);
         return v;

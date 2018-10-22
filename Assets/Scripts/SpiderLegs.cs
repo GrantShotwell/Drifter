@@ -7,6 +7,7 @@ public class SpiderLegs : MonoBehaviour {
     #region Variables
     public float bendy = 0.8f;
     public float angleSeparation = 10.0f;
+    public LayerMask layerMask;
 
     [System.Serializable]
     public class Leg {
@@ -121,11 +122,11 @@ public class SpiderLegs : MonoBehaviour {
                 Vector2 origin = leg.segments[0].hingeVector;
                 Vector2 direction = Vector2.right.Rotate(start);
                 float currentAngle = start;
-                RaycastHit2D hit = Physics2D.Raycast(origin, direction, leg.length * bendy);
+                RaycastHit2D hit = Physics2D.Raycast(origin, direction, leg.length * bendy, layerMask.value);
                 while(hit.collider == null && range.Contains(currentAngle + deltaAngle)) {
                     direction = direction.Rotate(deltaAngle);
                     currentAngle += deltaAngle;
-                    hit = Physics2D.Raycast(origin, direction, leg.length * bendy);
+                    hit = Physics2D.Raycast(origin, direction, leg.length * bendy, layerMask.value);
                 }
                 if(hit.collider == null) {
                     leg.targetFoot = leg.defaultPosition + leg.segments[0].hingeVector;

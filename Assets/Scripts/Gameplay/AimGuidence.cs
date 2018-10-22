@@ -6,15 +6,16 @@ using MyStuff;
 public class AimGuidence : MonoBehaviour {
     public Material material;
     public Color color;
+    public bool hidden;
     GameObject player;
     new Camera camera;
-    bool hidden = false;
     Vector2 mousePos, playerPos, camPos;
     Vector2 screenDimentions = new Vector2(Screen.width, Screen.height);
     Vector2 hitpoint, start, end;
     RaycastHit2D hit;
 
     void Start () {
+        hidden = false;
         player = GameObject.Find("Player");
         camera = Camera.main;
 	}
@@ -43,16 +44,5 @@ public class AimGuidence : MonoBehaviour {
             }
             camera.GetComponent<LineQueue>().NewLine(start, end, color);
         }
-    }
-
-    private void OnPreRender() {
-        //camera.GetComponent<LineQueue>().NewLine(start, end, color);
-    }
-
-    void Hide() {
-        hidden = true;
-    }
-    void Show() {
-        hidden = false;
     }
 }

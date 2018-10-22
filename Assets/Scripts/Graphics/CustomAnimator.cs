@@ -2,6 +2,94 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEditor;
+using MyStuff;
+
+
+#region Editor
+[CustomEditor(typeof(CustomAnimator))]
+public class CustomAnimatorEditor : Editor {
+    private SerializedProperty
+        _sprites,
+        _spriteRenderer,
+        _imageRenderer,
+        _update,
+        _current,
+        _timed,
+        _delay,
+        _catchUp,
+        _onFinish,
+        _reversed,
+        _wait,
+        _useComponentEnabler,
+        _componentEnabler;
+
+    private void OnEnable() {
+        _sprites = serializedObject.FindProperty("sprites");
+        _spriteRenderer = serializedObject.FindProperty("spriteRenderer");
+        _imageRenderer = serializedObject.FindProperty("imageRenderer");
+        _update = serializedObject.FindProperty("update");
+        _current = serializedObject.FindProperty("current");
+        _timed = serializedObject.FindProperty("timed");
+        _delay = serializedObject.FindProperty("delay");
+        _catchUp = serializedObject.FindProperty("catchUp");
+        _onFinish = serializedObject.FindProperty("onFinish");
+        _reversed = serializedObject.FindProperty("reversed");
+        _wait = serializedObject.FindProperty("wait");
+        _useComponentEnabler = serializedObject.FindProperty("useComponentEnabler");
+        _componentEnabler = serializedObject.FindProperty("componentEnabler");
+    }
+
+    public override void OnInspectorGUI() {
+        serializedObject.Update();
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_sprites, new GUIContent("Sprites"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_spriteRenderer, new GUIContent("Sprite Renderer"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_imageRenderer, new GUIContent("Image Renderer"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_update, new GUIContent("Update Location"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_current, new GUIContent("Current Index"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_timed, new GUIContent("Timed"));
+
+        GUI.enabled = true;
+        if(_timed.boolValue)
+            EditorGUILayout.PropertyField(_delay, new GUIContent("Delay"));
+
+        GUI.enabled = true;
+        if(_timed.boolValue)
+            EditorGUILayout.PropertyField(_catchUp, new GUIContent("Catch Up"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_onFinish, new GUIContent("On Animation Finish"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_reversed, new GUIContent("Reversed"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_wait, new GUIContent("Wait"));
+
+        GUI.enabled = true;
+        EditorGUILayout.PropertyField(_useComponentEnabler, new GUIContent("Use Component Enabler"));
+
+        GUI.enabled = true;
+        if(_useComponentEnabler.boolValue)
+            EditorGUILayout.PropertyField(_componentEnabler, new GUIContent("Component Enabler"));
+
+        serializedObject.ApplyModifiedProperties();
+    }
+}
+
+#endregion
 
 public class CustomAnimator : MonoBehaviour {
     #region Variables
@@ -19,7 +107,7 @@ public class CustomAnimator : MonoBehaviour {
     [Header("Behavior")]
 
     [Tooltip("Update on 'FixedUpdate()'. If false, update on 'Update()'. Times, such as 'delay.amount', remain the same.")]
-    public bool fixedUpdate = true;
+    public UpdateLocation update;
 
     [Tooltip("Current location in the sprite array. Directly changing this value after 'Start()' will NOT automatically update the sprite without 'UpdateSprite()' unless 'autoCycle' is set to true.")]
     public int current = 0;
@@ -29,10 +117,8 @@ public class CustomAnimator : MonoBehaviour {
 
     [System.Serializable]
     public class Delay {
-        [DefinedValues("Between Frames", "Across Loops")]
-        public string period = "Between Frames";
-        [HideInInspector] public bool frame;
-        [HideInInspector] public bool loop;
+        public Period period = Period.Frame;
+        public static readonly Period frame = Period.Frame, loop = Period.Loop;
         
         [Tooltip("Time, in seconds, of the delay.")]
         public float amount;
@@ -41,22 +127,22 @@ public class CustomAnimator : MonoBehaviour {
         public bool randomise = false;
 
         [Tooltip("Final amount = [-range, +range].")]
-        [ConditionalField("randomise")] public float range = 1;
+        public float range = 1; //conditional with 'randomise'
+
+        public enum Period { Frame, Loop }
     }
     [Tooltip("Decides how long each frame of the animation will last in seconds.")]
-    [ConditionalField("timed")] public Delay delay;
+    public Delay delay;
 
     [Tooltip("Skip sprites if the time between updates happened to be much longer than the delay.\n" +
         "Ie. If '2 * delay.amount <= [Time.deltaTime/Time.fixedDeltaTime]', then 'current += 1' every [Update()/FixedUpdate()].")]
-    [ConditionalField("timed")] public bool catchUp = true;
+    public bool catchUp = true;
 
+    public enum OnFinish { Loop, Reverse, Destroy, Nothing }
     [Tooltip("What to do when 'current' is past the last sprite.")]
-    [DefinedValues("Nothing", "Loop", "Reverse", "Destroy")]
-    public string OnFinish = "Nothing";
-    [HideInInspector] public bool loopOnFinish = false;
-    [HideInInspector] public bool reverseOnFinish = false;
-    private bool reversed = false;
-    [HideInInspector] public bool destroyOnFinish = false;
+    public OnFinish onFinish = 0;
+    private static readonly OnFinish loop = OnFinish.Loop, reverse = OnFinish.Reverse, destroy = OnFinish.Destroy, nothing = OnFinish.Nothing;
+    public bool reversed = false;
 
     [Tooltip("The animation will be paused as long as this is true.")]
     public bool wait = false;
@@ -77,58 +163,33 @@ public class CustomAnimator : MonoBehaviour {
 
         [Header("Ranges")]
 
-        [Tooltip("Specify a maximum sprite array location for the component to be enabled. +Infinity if false.")]
-        public bool useInclusiveMax;
-        [ConditionalField("useInclusiveMax")] public int inclusiveMax;
-
         [Tooltip("Specify a minimum sprite array location for the component to be enabled. -Infinity if false.")]
         public bool useInclusiveMin;
-        [ConditionalField("useInclusiveMin")] public int inclusiveMin;
+        public int inclusiveMin; //conditional with 'useInclusiveMin'
+
+        [Tooltip("Specify a maximum sprite array location for the component to be enabled. +Infinity if false.")]
+        public bool useInclusiveMax;
+        public int inclusiveMax; //conditional with 'useInclusiveMax'
     }
-    [ConditionalField("useComponentEnabler")] public ComponentEnabler componentEnabler = new ComponentEnabler();
+    public ComponentEnabler componentEnabler = new ComponentEnabler();
 
     float time = 0.0f;
     #endregion
 
     #region Update
     private void Start() {
-        switch(OnFinish) {
-            case "Loop":
-                loopOnFinish = true;
-                break;
-            case "Reverse":
-                reverseOnFinish = true;
-                break;
-            case "Destroy":
-                destroyOnFinish = true;
-                break;
-        }
-        OnFinish = null;
-
-        switch(delay.period) {
-            case "Between Frames": delay.frame = true;
-                break;
-            case "Across Loops": delay.loop = true;
-                break;
-        }
-        delay.period = null;
-
-        //TODO: REMOVE THIS
-        if(reverseOnFinish)
-            catchUp = false;
-
         SetImage(sprites[current]);
     }
 
-    private void Update() { if(!fixedUpdate) UpdateAnimation(); }
-    private void FixedUpdate() { if(fixedUpdate) UpdateAnimation(); }
+    private void Update() { if(update == UpdateLocation.Update) UpdateAnimation(); }
+    private void FixedUpdate() { if(update == UpdateLocation.FixedUpdate) UpdateAnimation(); }
     #endregion
 
     #region Functions
     private void UpdateAnimation() {
         #region Sprite Cycle
         if(timed && !wait) {
-            if(fixedUpdate) time += Time.fixedDeltaTime;
+            if(Time.inFixedTimeStep) time += Time.fixedDeltaTime;
             else time += Time.deltaTime;
 
             float amount = delay.amount;
@@ -136,11 +197,11 @@ public class CustomAnimator : MonoBehaviour {
                 amount += Random.Range(-delay.range, delay.range);
 
             float delayAmount = 0, totalTime = 0;
-            if(delay.frame) {
+            if(delay.period == Delay.frame) {
                 delayAmount = amount;
                 totalTime   = amount * sprites.Length;
             }
-            if(delay.loop) {
+            if(delay.period == Delay.loop) {
                 delayAmount = amount / sprites.Length;
                 totalTime   = amount;
             }
@@ -182,14 +243,14 @@ public class CustomAnimator : MonoBehaviour {
 
     void CycleSprite() {
         if(current >= sprites.Length - 1 && !reversed) {
-            if(destroyOnFinish) {
+            if(onFinish == destroy) {
                 Destroy(gameObject);
             }
-            else if(loopOnFinish) {
+            else if(onFinish == loop) {
                 time = 0;
                 current = 0;
             }
-            else if(reverseOnFinish) {
+            else if(onFinish == reverse) {
                 if(!reversed) {
                     time = 0;
                     current = sprites.Length - 2;

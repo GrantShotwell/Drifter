@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+[RequireComponent(typeof(Collider2D))]
 public class Damager : MonoBehaviour {
     #region Variables
     [Header("Behavior")]
@@ -31,11 +32,13 @@ public class Damager : MonoBehaviour {
     }
     [ConditionalField("useTrigger")] public TriggerSettings triggerSettings = new TriggerSettings();
 
-    [System.Serializable]
-    public class DamageEvent : UnityEvent<Vector2> {}
+    [System.Serializable] public class DamageEvent1 : UnityEvent<Vector2> {}
+    [System.Serializable] public class DamageEvent2 : UnityEvent<Collider2D> {}
 
     [Header("Events")]
-    public DamageEvent damageEvent;
+    public UnityEvent damageEvent;
+    public DamageEvent1 damagePosition;
+    public DamageEvent2 damageCollider;
     #endregion
 
     #region Update
@@ -91,7 +94,7 @@ public class Damager : MonoBehaviour {
             Healthbar healthbar = collision.gameObject.GetComponent<Healthbar>();
             if(healthbar != null) {
                 healthbar.Damage(damage);
-                damageEvent.Invoke(collision.transform.position);
+                damagePosition.Invoke(collision.transform.position);
             }
         }
     }
@@ -102,7 +105,9 @@ public class Damager : MonoBehaviour {
             Healthbar healthbar = collision.gameObject.GetComponent<Healthbar>();
             if(healthbar != null) {
                 healthbar.Damage(damage);
-                damageEvent.Invoke(collision.transform.position);
+                damageEvent.Invoke();
+                damagePosition.Invoke(collision.transform.position);
+                damageCollider.Invoke(collision);
             }
         }
     }

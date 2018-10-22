@@ -11,6 +11,8 @@ public class Hover : MonoBehaviour {
     [Tooltip("Distance above the target height where the script will apply a downwards force. This is to counteract issues with bouncing.")]
     public float limit;
 
+    public LayerMask layerMask;
+
     [Tooltip("The script determines height above the ground by raycasting. If the base of this object is large, consider adding more raycasts.")]
     public Vector2[] raycastStartVectors;
 
@@ -24,13 +26,10 @@ public class Hover : MonoBehaviour {
 
     [Tooltip("Multiply the magnitude of the force by the mass of this object (from RigidBody2D).")]
     public bool multiplyByMass;
-
-    private bool _onGround = false;
-    private bool _nearGround = false;
     new Rigidbody2D rigidbody;
 
-    public bool onGround { get { return _onGround; } }
-    public bool nearGround { get { return _nearGround; } }
+    public bool onGround { get; private set; } = false;
+    public bool nearGround { get; private set; } = false;
 
     private void Start() {
         rigidbody = GetComponent<Rigidbody2D>();
@@ -42,24 +41,24 @@ public class Hover : MonoBehaviour {
     private void FixedUpdate() {
         direction.Normalize();
         float lowestDistance = 0;
-        _onGround = false;
-        _nearGround = false;
+        onGround = false;
+        nearGround = false;
         for(int j = 0; j < raycastStartVectors.Length; j++) {
             Vector2 startVector = raycastStartVectors[j] + (Vector2)transform.position;
-            RaycastHit2D hit = Physics2D.Raycast(startVector, direction, Mathf.Infinity);
+            RaycastHit2D hit = Physics2D.Raycast(startVector, direction, Mathf.Infinity, layerMask);
             if(hit.distance < lowestDistance || j == 0) lowestDistance = hit.distance;
         }
-        if(lowestDistance <= height) _onGround = true;
-        else if(lowestDistance <= height + limit) _nearGround = true;
-        if(_onGround || _nearGround) {
+        if(lowestDistance <= height) onGround = true;
+        else if(lowestDistance <= height + limit) nearGround = true;
+        if(onGround || nearGround) {
             Vector2 F = direction * force;
             if(multiplyByMass) F *= rigidbody.mass;
 
-            if(_onGround) F *= (height - lowestDistance) / height;
-            if(_nearGround) F *= (lowestDistance - height) / limit;
+            if(onGround) F *= (height - lowestDistance) / height;
+            if(nearGround) F *= (lowestDistance - height) / limit;
 
-            if(_onGround) rigidbody.AddForce(-F); //lift up
-            if(_nearGround) rigidbody.AddForce(F); //push down
+            if(onGround) rigidbody.AddForce(-F); //lift up
+            if(nearGround) rigidbody.AddForce(F); //push down
         }
     }
 }
