@@ -58,7 +58,9 @@
 				float4 e = float4(0, 0, 0, 0);
 				
 				if (color.a > 0) {
-					/**/ if (color.r * color.g > _Progress && color.r / color.g > _Progress) e = lerp(_ExpBright, _ExpDark, _Progress);
+					if (color.r * color.g > _Progress &&
+						color.r / color.g > _Progress)
+						e = lerp(_ExpBright, _ExpDark, _Progress);
 					else if (color.g > _Progress) e = lerp(_SmkBright, _SmkDark, stage2);
 				}
 

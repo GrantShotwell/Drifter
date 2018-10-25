@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEditor;
 using MyStuff;
 
-
 #region Editor
 [CustomEditor(typeof(CustomAnimator))]
 public class CustomAnimatorEditor : Editor {
@@ -15,8 +14,9 @@ public class CustomAnimatorEditor : Editor {
         _imageRenderer,
         _update,
         _current,
-        _timed,
+        _cycle,
         _delay,
+        _random,
         _catchUp,
         _onFinish,
         _reversed,
@@ -30,8 +30,9 @@ public class CustomAnimatorEditor : Editor {
         _imageRenderer = serializedObject.FindProperty("imageRenderer");
         _update = serializedObject.FindProperty("update");
         _current = serializedObject.FindProperty("current");
-        _timed = serializedObject.FindProperty("timed");
+        _cycle = serializedObject.FindProperty("cycle");
         _delay = serializedObject.FindProperty("delay");
+        _random = serializedObject.FindProperty("random");
         _catchUp = serializedObject.FindProperty("catchUp");
         _onFinish = serializedObject.FindProperty("onFinish");
         _reversed = serializedObject.FindProperty("reversed");
@@ -44,8 +45,8 @@ public class CustomAnimatorEditor : Editor {
         serializedObject.Update();
 
         GUI.enabled = true;
-        EditorGUILayout.PropertyField(_sprites, new GUIContent("Sprites"));
-
+        EditorGUILayout.PropertyField(_sprites, new GUIContent("Sprites"), true);
+        
         GUI.enabled = true;
         EditorGUILayout.PropertyField(_spriteRenderer, new GUIContent("Sprite Renderer"));
 
@@ -59,31 +60,40 @@ public class CustomAnimatorEditor : Editor {
         EditorGUILayout.PropertyField(_current, new GUIContent("Current Index"));
 
         GUI.enabled = true;
-        EditorGUILayout.PropertyField(_timed, new GUIContent("Timed"));
+        EditorGUILayout.PropertyField(_cycle, new GUIContent("Cycle"));
 
-        GUI.enabled = true;
-        if(_timed.boolValue)
-            EditorGUILayout.PropertyField(_delay, new GUIContent("Delay"));
+        if(_cycle.intValue == 2) {
+            GUI.enabled = true;
+            EditorGUILayout.PropertyField(_delay, new GUIContent("Delay"), true);
+        }
+        
+        if(_cycle.intValue != 0) {
+            GUI.enabled = true;
+            EditorGUILayout.PropertyField(_random, new GUIContent("Randomize"));
 
-        GUI.enabled = true;
-        if(_timed.boolValue)
-            EditorGUILayout.PropertyField(_catchUp, new GUIContent("Catch Up"));
+            if(!_random.boolValue) {
+                if(_cycle.intValue == 2) {
+                    GUI.enabled = true;
+                    EditorGUILayout.PropertyField(_catchUp, new GUIContent("Catch Up"));
+                }
 
-        GUI.enabled = true;
-        EditorGUILayout.PropertyField(_onFinish, new GUIContent("On Animation Finish"));
+                GUI.enabled = true;
+                EditorGUILayout.PropertyField(_onFinish, new GUIContent("On Animation Finish"));
 
-        GUI.enabled = true;
-        EditorGUILayout.PropertyField(_reversed, new GUIContent("Reversed"));
+                GUI.enabled = true;
+                EditorGUILayout.PropertyField(_reversed, new GUIContent("Reversed"));
+            }
 
-        GUI.enabled = true;
-        EditorGUILayout.PropertyField(_wait, new GUIContent("Wait"));
+            GUI.enabled = true;
+            EditorGUILayout.PropertyField(_wait, new GUIContent("Wait"));
+        }
 
         GUI.enabled = true;
         EditorGUILayout.PropertyField(_useComponentEnabler, new GUIContent("Use Component Enabler"));
 
         GUI.enabled = true;
         if(_useComponentEnabler.boolValue)
-            EditorGUILayout.PropertyField(_componentEnabler, new GUIContent("Component Enabler"));
+            EditorGUILayout.PropertyField(_componentEnabler, new GUIContent("Component Enabler"), true);
 
         serializedObject.ApplyModifiedProperties();
     }
@@ -96,7 +106,7 @@ public class CustomAnimator : MonoBehaviour {
     [Tooltip("Array of sprites, in order, for the animator to use.")]
     public Sprite[] sprites;
 
-    [Header("Renderer Components")]
+    [Header("Renderer Component(s)")]
 
     [Tooltip("Sprite Renderer component of the object to animate. Only one renderer is required.")]
     public SpriteRenderer spriteRenderer;
@@ -112,36 +122,43 @@ public class CustomAnimator : MonoBehaviour {
     [Tooltip("Current location in the sprite array. Directly changing this value after 'Start()' will NOT automatically update the sprite without 'UpdateSprite()' unless 'autoCycle' is set to true.")]
     public int current = 0;
 
-    [Tooltip("Automatically cycle between sprites on a constant time interval. Every [delay] seconds 'current += 1' and the sprite is updated.")]
-    public bool timed = false;
+    public enum Cycle { None, Frame, Timed }
+    public Cycle cycle;
+    public bool frame => cycle == Cycle.Frame;
+    public bool timed => cycle == Cycle.Timed;
+
+    public bool random = false;
 
     [System.Serializable]
     public class Delay {
+        public enum Period { Frame, Loop }
         public Period period = Period.Frame;
-        public static readonly Period frame = Period.Frame, loop = Period.Loop;
+        public bool frame => period == Period.Frame;
+        public bool loop  => period == Period.Loop;
         
         [Tooltip("Time, in seconds, of the delay.")]
         public float amount;
 
         [Tooltip("Randomise 'amount'.")]
-        public bool randomise = false;
+        public bool randomize = false;
 
         [Tooltip("Final amount = [-range, +range].")]
         public float range = 1; //conditional with 'randomise'
-
-        public enum Period { Frame, Loop }
     }
     [Tooltip("Decides how long each frame of the animation will last in seconds.")]
     public Delay delay;
 
     [Tooltip("Skip sprites if the time between updates happened to be much longer than the delay.\n" +
-        "Ie. If '2 * delay.amount <= [Time.deltaTime/Time.fixedDeltaTime]', then 'current += 1' every [Update()/FixedUpdate()].")]
+        "Ie. If 'deltaTime >= 2 * delay.amount', then one or more frames will be skipped.")]
     public bool catchUp = true;
 
     public enum OnFinish { Loop, Reverse, Destroy, Nothing }
     [Tooltip("What to do when 'current' is past the last sprite.")]
     public OnFinish onFinish = 0;
-    private static readonly OnFinish loop = OnFinish.Loop, reverse = OnFinish.Reverse, destroy = OnFinish.Destroy, nothing = OnFinish.Nothing;
+    public bool loop    => onFinish == OnFinish.Loop;
+    public bool reverse => onFinish == OnFinish.Reverse;
+    public bool destroy => onFinish == OnFinish.Destroy;
+    public bool nothing => onFinish == OnFinish.Nothing;
     public bool reversed = false;
 
     [Tooltip("The animation will be paused as long as this is true.")]
@@ -163,13 +180,11 @@ public class CustomAnimator : MonoBehaviour {
 
         [Header("Ranges")]
 
-        [Tooltip("Specify a minimum sprite array location for the component to be enabled. -Infinity if false.")]
-        public bool useInclusiveMin;
-        public int inclusiveMin; //conditional with 'useInclusiveMin'
+        [Tooltip("Specify a minimum sprite array location for the component to be enabled.")]
+        public int inclusiveMin;
 
-        [Tooltip("Specify a maximum sprite array location for the component to be enabled. +Infinity if false.")]
-        public bool useInclusiveMax;
-        public int inclusiveMax; //conditional with 'useInclusiveMax'
+        [Tooltip("Specify a maximum sprite array location for the component to be enabled.")]
+        public int inclusiveMax;
     }
     public ComponentEnabler componentEnabler = new ComponentEnabler();
 
@@ -188,20 +203,21 @@ public class CustomAnimator : MonoBehaviour {
     #region Functions
     private void UpdateAnimation() {
         #region Sprite Cycle
-        if(timed && !wait) {
+        if(frame && !wait) CycleSprite();
+        else if(timed && !wait) {
             if(Time.inFixedTimeStep) time += Time.fixedDeltaTime;
             else time += Time.deltaTime;
 
             float amount = delay.amount;
-            if(delay.randomise)
+            if(delay.randomize)
                 amount += Random.Range(-delay.range, delay.range);
 
             float delayAmount = 0, totalTime = 0;
-            if(delay.period == Delay.frame) {
+            if(delay.frame) {
                 delayAmount = amount;
                 totalTime   = amount * sprites.Length;
             }
-            if(delay.period == Delay.loop) {
+            if(delay.loop) {
                 delayAmount = amount / sprites.Length;
                 totalTime   = amount;
             }
@@ -215,19 +231,17 @@ public class CustomAnimator : MonoBehaviour {
             }
             else if(time > (current + 1) * delayAmount) CycleSprite();
         }
-        else if(!wait) CycleSprite();
         #endregion
 
         #region Component Enabler
         if(useComponentEnabler) {
             Behaviour component = componentEnabler.component;
-            bool useInclusiveMax = componentEnabler.useInclusiveMax, useInclusiveMin = componentEnabler.useInclusiveMin;
             int inclusiveMax = componentEnabler.inclusiveMax, inclusiveMin = componentEnabler.inclusiveMin;
-
+            
             bool componentShouldBeEnabled = true;
-            if(useInclusiveMax && current > inclusiveMax)
+            if(current > inclusiveMax)
                 componentShouldBeEnabled = false;
-            if(useInclusiveMin && current < inclusiveMin)
+            if(current < inclusiveMin)
                 componentShouldBeEnabled = false;
 
             if(component.enabled != componentShouldBeEnabled) {
@@ -242,15 +256,14 @@ public class CustomAnimator : MonoBehaviour {
     }
 
     void CycleSprite() {
-        if(current >= sprites.Length - 1 && !reversed) {
-            if(onFinish == destroy) {
-                Destroy(gameObject);
-            }
-            else if(onFinish == loop) {
+        if(random) current = Random.Range(0, sprites.Length);
+        else if(current >= sprites.Length - 1 && !reversed) {
+            if(destroy) Destroy(gameObject);
+            else if(loop) {
                 time = 0;
                 current = 0;
             }
-            else if(onFinish == reverse) {
+            else if(reverse) {
                 if(!reversed) {
                     time = 0;
                     current = sprites.Length - 2;
@@ -281,7 +294,5 @@ public class CustomAnimator : MonoBehaviour {
         if(spriteRenderer != null) spriteRenderer.sprite = img;
         if(imageRenderer != null) imageRenderer.sprite = img;
     }
-
-    static int CountTrue(params bool[] args) { return args.Count(t => t); } //Stack Overflow
     #endregion
 }

@@ -60,10 +60,11 @@ public class WatcherController : MonoBehaviour {
     #endregion
 
     #region Misc.
-    Hover hoverScript;
     float defaultHeight;
     float defaultFollow;
     float defaultDrag;
+    new SpriteRenderer renderer;
+    Hover hoverScript;
     SpiderLegs legScript;
     Follow followScript;
     Healthbar healthbar;
@@ -76,6 +77,7 @@ public class WatcherController : MonoBehaviour {
 
     #region Update
     private void Start() {
+        renderer = GetComponent<SpriteRenderer>();
         attack.muncher.SetActive(false);
         healthbar = GetComponent<Healthbar>();
         healthbar.enabled = false;
@@ -279,6 +281,31 @@ public class WatcherController : MonoBehaviour {
             explosion.transform.position = transform.position + (Vector3)p;
             explosion.GetComponent<Rigidbody2D>().velocity = p.SetMagnitude(p.magnitude * 4);
             count--;
+        }
+    }
+
+    public int catLives = 0;
+    public Sprite stage2Sprite;
+    public void OnDeath() {
+        if(catLives == 0) {
+
+        }
+        else {
+            renderer.sprite = stage2Sprite;
+            healthbar.Heal(healthbar.max);
+            catLives--;
+            
+            int count = 30;
+            Range distance = new Range(1.0f, 3.0f);
+            while(count > 0) {
+                float magnitude = distance.random;
+                Vector2 p = new Vector2(magnitude, 0).Rotate(Random.Range(0.0f, 360.0f));
+                GameObject explosion = Instantiate(MyFunctions.RandomItem(explosions));
+                explosion.transform.position = transform.position + (Vector3)p;
+                explosion.GetComponent<Rigidbody2D>().velocity = p.SetMagnitude(p.magnitude * 4);
+                explosion.GetComponent<SpriteRenderer>().sortingOrder = 10;
+                count--;
+            }
         }
     }
     #endregion

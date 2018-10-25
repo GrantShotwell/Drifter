@@ -417,7 +417,7 @@ namespace MyStuff {
 public static class Vector2Extension {
     public static float Heading(this Vector2 v) { return Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg; }
 
-    public static Vector2 SetHeading(this Vector2 v, float degrees)   { return new Vector2(v.magnitude, 0).Rotate(degrees); }
+    public static Vector2 SetHeading(this Vector2 v, float degrees)     { return new Vector2(v.magnitude, 0).Rotate(degrees); }
     public static Vector2 SetMagnitude(this Vector2 v, float magnitude) { return new Vector2(magnitude, 0).Rotate(v.Heading()); }
 
     public static Vector2 Rotate(this Vector2 v, float degrees) { //Stack Overflow

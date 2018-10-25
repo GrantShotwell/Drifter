@@ -61,31 +61,25 @@ MonoBehaviour:
   - {fileID: 21300010, guid: 710daff486c621046b9a44282bad9a7e, type: 3}
   spriteRenderer: {fileID: 212715668238174494}
   imageRenderer: {fileID: 0}
-  fixedUpdate: 0
+  update: 0
   current: 0
   timed: 1
   delay:
-    period: Between Frames
-    frame: 0
-    loop: 0
+    period: 0
     amount: 2
     randomise: 1
     range: 1
   catchUp: 0
-  OnFinish: Reverse
-  loopOnFinish: 0
-  reverseOnFinish: 0
-  destroyOnFinish: 0
+  onFinish: 1
+  reversed: 0
   wait: 0
   useComponentEnabler: 0
   componentEnabler:
     component: {fileID: 0}
     enableEnabling: 0
     enableDisabling: 0
-    useInclusiveMax: 0
-    inclusiveMax: 0
-    useInclusiveMin: 0
     inclusiveMin: 0
+    inclusiveMax: 0
 --- !u!212 &212715668238174494
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -120,7 +114,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: 710daff486c621046b9a44282bad9a7e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

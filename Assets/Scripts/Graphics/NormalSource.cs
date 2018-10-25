@@ -35,7 +35,7 @@ namespace Normal2D {
 
             GUI.enabled = true;
             if(_autoDetectNormalSystem.boolValue)
-                _useUpdateForDetection.boolValue = EditorGUILayout.ToggleLeft("Use 'Update()' for detection.", _useUpdateForDetection.boolValue);
+                _useUpdateForDetection.boolValue = EditorGUILayout.ToggleLeft("Use 'Update()' for detection. (try to avoid using this)", _useUpdateForDetection.boolValue);
 
             GUI.enabled = !_autoDetectNormalSystem.boolValue;
             EditorGUILayout.PropertyField(_normalSystem, new GUIContent("Normal System"));
@@ -51,7 +51,7 @@ namespace Normal2D {
     }
 
     [Serializable]
-    public enum LightShape { Circle, Cone }
+    public enum LightShape { Circle }
     #endregion
 
     [ExecuteInEditMode]

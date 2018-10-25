@@ -37,9 +37,11 @@ namespace UnityEditor
 		
 		private ReorderableList m_ReorderableList;
 		public RuleTile tile { get { return (target as RuleTile); } }
-		private Rect m_ListRect;
+#pragma warning disable CS0169 // unused variable
+        private Rect m_ListRect;
+#pragma warning restore CS0169 // unused variable
 
-		internal const float k_DefaultElementHeight = 48f;
+        internal const float k_DefaultElementHeight = 48f;
 		internal const float k_PaddingBetweenRules = 26f;
 		internal const float k_SingleLineHeight = 16f;
 		internal const float k_ObjectFieldLineHeight = 20f;

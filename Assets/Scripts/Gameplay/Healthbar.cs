@@ -13,6 +13,7 @@ public class Healthbar : MonoBehaviour {
     public float invincibilityTime = 2;
     public float invincibilityLeft { get; private set; }
 
+#if UNITY_EDITOR
     [System.Serializable]
     public class Info {
         [Tooltip("The readonly health value. Clamped from [0, max]. Can only be changed with GetComponent<Healthbar>.[Damage(int)/Heal(int)/Set(int)]")]
@@ -27,6 +28,7 @@ public class Healthbar : MonoBehaviour {
     [Tooltip(" - - - INSPECTOR ONLY - - - \n" +
         "To access in script: GetComponent<Healthbar>.[health/overflow/...]")]
     public Info info = new Info();
+#endif
 
     [System.Serializable]
     public class Events {

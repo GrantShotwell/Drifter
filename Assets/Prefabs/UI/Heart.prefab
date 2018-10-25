@@ -46,28 +46,25 @@ MonoBehaviour:
   - {fileID: 21300002, guid: 0401f0885a06e7744ba782b6b07b15ad, type: 3}
   spriteRenderer: {fileID: 0}
   imageRenderer: {fileID: 114840017371042430}
-  fixedUpdate: 0
+  update: 0
   current: 0
   timed: 0
   delay:
-    period: Between Frames
-    frame: 0
-    loop: 0
+    period: 0
     amount: 0
+    randomise: 0
+    range: 1
   catchUp: 0
-  OnFinish: Nothing
-  destroyOnFinish: 0
-  loopOnFinish: 0
+  onFinish: 3
+  reversed: 0
   wait: 1
   useComponentEnabler: 0
   componentEnabler:
     component: {fileID: 0}
     enableEnabling: 0
     enableDisabling: 0
-    useInclusiveMax: 0
-    inclusiveMax: 0
-    useInclusiveMin: 0
     inclusiveMin: 0
+    inclusiveMax: 0
 --- !u!114 &114840017371042430
 MonoBehaviour:
   m_ObjectHideFlags: 1
