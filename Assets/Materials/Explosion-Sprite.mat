@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Explosion
+  m_Name: Explosion-Sprite
   m_Shader: {fileID: 4800000, guid: 7dc936b200b71b2459d7f16cc8372fbc, type: 3}
   m_ShaderKeywords: ETC1_EXTERNAL_ALPHA
   m_LightmapFlags: 4

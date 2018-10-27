@@ -81,13 +81,13 @@ MonoBehaviour:
   imageRenderer: {fileID: 0}
   update: 1
   current: 0
-  timed: 1
+  cycle: 2
+  random: 0
   delay:
     period: 0
     amount: 0.05
-    randomise: 0
+    randomize: 0
     range: 1
-  catchUp: 0
   onFinish: 2
   reversed: 0
   wait: 0

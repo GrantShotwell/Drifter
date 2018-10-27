@@ -49,18 +49,24 @@
 			fixed4 frag (v2f i) : SV_Target {
 				float4 color = tex2D(_MainTex, i.uv);
 				float4 normal = tex2D(_Normal, i.uv);
-				float nX = normal.a * 2 - 1;
-				float nY = normal.g * 2 - 1;
-				bool Rt = (nX > 0), Lt = !Rt;
-				bool Up = (nY > 0), Dn = !Up;
+				float2 n = float2(normal.a * 2 - 1, normal.g * 2 - 1);
 
-				float dt = 0; //dot
-				/**/ if (Rt && Up) dt = dot(float2(nX, nY), float2(_Rt, _Up));
-				else if (Rt && Dn) dt = dot(float2(nX, nY), float2(_Rt, _Dn));
-				else if (Lt && Up) dt = dot(float2(nX, nY), float2(_Lt, _Up));
-				else if (Lt && Dn) dt = dot(float2(nX, nY), float2(_Lt, _Dn));
+				float dt = 1; //dot
+				if (distance(float2(0, 0), n) > 0.01) {
+					n = normalize(n);
 
-				dt = (dt + 1) / 2; //inverse of nX and nY
+					bool Rt = (n.x > 0), Lt = !Rt;
+					bool Up = (n.y > 0), Dn = !Up;
+
+					/**/ if (Rt && Up) dt = dot(n, float2(_Rt, _Up));
+					else if (Rt && Dn) dt = dot(n, float2(_Rt, _Dn));
+					else if (Lt && Up) dt = dot(n, float2(_Lt, _Up));
+					else if (Lt && Dn) dt = dot(n, float2(_Lt, _Dn));
+
+					dt = (dt + 1) / 2; //inverse of nX and nY
+					dt += 0.5;
+				}
+
 				return float4(color.r * dt, color.g * dt, color.b * dt, color.a);
 			}
 			

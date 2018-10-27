@@ -17,7 +17,6 @@ public class CustomAnimatorEditor : Editor {
         _cycle,
         _delay,
         _random,
-        _catchUp,
         _onFinish,
         _reversed,
         _wait,
@@ -33,7 +32,6 @@ public class CustomAnimatorEditor : Editor {
         _cycle = serializedObject.FindProperty("cycle");
         _delay = serializedObject.FindProperty("delay");
         _random = serializedObject.FindProperty("random");
-        _catchUp = serializedObject.FindProperty("catchUp");
         _onFinish = serializedObject.FindProperty("onFinish");
         _reversed = serializedObject.FindProperty("reversed");
         _wait = serializedObject.FindProperty("wait");
@@ -72,11 +70,6 @@ public class CustomAnimatorEditor : Editor {
             EditorGUILayout.PropertyField(_random, new GUIContent("Randomize"));
 
             if(!_random.boolValue) {
-                if(_cycle.intValue == 2) {
-                    GUI.enabled = true;
-                    EditorGUILayout.PropertyField(_catchUp, new GUIContent("Catch Up"));
-                }
-
                 GUI.enabled = true;
                 EditorGUILayout.PropertyField(_onFinish, new GUIContent("On Animation Finish"));
 
@@ -148,10 +141,6 @@ public class CustomAnimator : MonoBehaviour {
     [Tooltip("Decides how long each frame of the animation will last in seconds.")]
     public Delay delay;
 
-    [Tooltip("Skip sprites if the time between updates happened to be much longer than the delay.\n" +
-        "Ie. If 'deltaTime >= 2 * delay.amount', then one or more frames will be skipped.")]
-    public bool catchUp = true;
-
     public enum OnFinish { Loop, Reverse, Destroy, Nothing }
     [Tooltip("What to do when 'current' is past the last sprite.")]
     public OnFinish onFinish = 0;
@@ -222,11 +211,7 @@ public class CustomAnimator : MonoBehaviour {
                 totalTime   = amount;
             }
 
-            if(catchUp) {
-                float framesToCycle = (current + 1) - (time % delayAmount);
-                for(int j = 0; j < framesToCycle; j++) CycleSprite();
-            }
-            else if(reversed) {
+            if(reversed) {
                 if(time > -(current + 1) * delayAmount + totalTime) CycleSprite();
             }
             else if(time > (current + 1) * delayAmount) CycleSprite();
@@ -292,7 +277,7 @@ public class CustomAnimator : MonoBehaviour {
 
     void SetImage(Sprite img) {
         if(spriteRenderer != null) spriteRenderer.sprite = img;
-        if(imageRenderer != null) imageRenderer.sprite = img;
+        if(imageRenderer  != null) imageRenderer.sprite = img;
     }
     #endregion
 }
