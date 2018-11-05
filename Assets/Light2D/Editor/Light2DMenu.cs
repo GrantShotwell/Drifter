@@ -9,13 +9,47 @@ namespace Light2D
 {
     public static class Light2DMenu
     {
-        [MenuItem("GameObject/Light2D/Lighting System", false, 6)]
+        [MenuItem("GameObject/Light2D/Lighting System")]
         public static void CreateLightingSystem()
         {
             LightingSystemCreationWindow.CreateWindow();
         }
 
-        [MenuItem("GameObject/Light2D/Light Obstacle", false, 6)]
+        [MenuItem("GameObject/Light2D/Light Source")]
+        public static void CreateLightSource() {
+            var obj = new GameObject("Light");
+            if(LightingSystem.Instance != null)
+                obj.layer = LightingSystem.Instance.LightSourcesLayer;
+            var light = obj.AddComponent<LightSprite>();
+            light.Material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Light2D/Materials/Light60Points.mat");
+            light.Sprite = Resources.Load<Sprite>("DefaultLight");
+            light.Color = new Color(1, 1, 1, 0.5f);
+            Selection.activeObject = obj;
+        }
+
+        [MenuItem("GameObject/Light2D/Light Probe")]
+        public static void CreateLightProbe(MenuCommand command) {
+            GameObject probe = new GameObject("Light2D Probe");
+            GameObject parent = command.context as GameObject;
+            GameObjectUtility.SetParentAndAlign(probe, parent);
+
+            if(LightingSystem.Instance != null)
+                probe.layer = LightingSystem.Instance.LightProbesLayer;
+            var bc = probe.AddComponent<BoxCollider2D>();
+            var sr = parent.GetComponent<SpriteRenderer>();
+            if(sr != null) {
+                bc.size = sr.sprite.bounds.size;
+                bc.offset = (bc.size / 2) - (sr.sprite.pivot / sr.sprite.pixelsPerUnit);
+            }
+            var lp = probe.AddComponent<LightProbe>();
+            var nr = parent.GetComponent<NormalRenderer>();
+            if(nr != null) nr.probe = lp;
+
+            Undo.RegisterCreatedObjectUndo(probe, "Create " + probe.name);
+            Selection.activeObject = probe;
+        }
+
+        [MenuItem("GameObject/Light2D/Light Obstacle")]
         public static void CreateLightObstacle()
         {
             var baseObjects = Selection.gameObjects.Select(o => o.GetComponent<Renderer>()).Where(r => r != null).ToList();
@@ -43,20 +77,7 @@ namespace Light2D
             }
         }
 
-        [MenuItem("GameObject/Light2D/Light Source", false, 6)]
-        public static void CreateLightSource()
-        {
-            var obj = new GameObject("Light");
-            if (LightingSystem.Instance != null)
-                obj.layer = LightingSystem.Instance.LightSourcesLayer;
-            var light = obj.AddComponent<LightSprite>();
-            light.Material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Light2D/Materials/Light60Points.mat");
-            light.Sprite = Resources.Load<Sprite>("DefaultLight");
-            light.Color = new Color(1, 1, 1, 0.5f);
-            Selection.activeObject = obj;
-        }
-
-        [MenuItem("GameObject/Light2D/Enable 2DTK Support", false, 6)]
+        [MenuItem("GameObject/Light2D/Enable 2DTK Support")]
         public static void Enable2DToolkitSupport()
         {
             var targets = (BuildTargetGroup[]) Enum.GetValues(typeof (BuildTargetGroup));
@@ -64,7 +85,7 @@ namespace Light2D
                 DefineSymbol("LIGHT2D_2DTK", target);
         }
 
-        [MenuItem("GameObject/Light2D/Disable 2DTK Support", false, 6)]
+        [MenuItem("GameObject/Light2D/Disable 2DTK Support")]
         public static void Disable2DToolkitSupport()
         {
             var targets = (BuildTargetGroup[])Enum.GetValues(typeof(BuildTargetGroup));

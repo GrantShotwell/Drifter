@@ -4,94 +4,71 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-namespace Normal2D {
+namespace Light2D {
     #region Editor
     /// <summary>
-    /// custom inspector stuff
+    /// Custom inspector stuff for 'NormalSource.cs5'.
     /// </summary>
-
     [CustomEditor(typeof(NormalSource))]
     public class NormalSourceEditor : Editor {
-        private SerializedProperty
-            _normalSystem,
-            _autoDetectNormalSystem,
-            _useUpdateForDetection,
-            _shape,
-            _radius;
+        NormalSource script;
+        SerializedProperty
+            _falloff,
+            _probes;
 
         private void OnEnable() {
-            _normalSystem = serializedObject.FindProperty("normalSystem");
-            _autoDetectNormalSystem = serializedObject.FindProperty("autoDetectNormalSystem");
-            _useUpdateForDetection = serializedObject.FindProperty("useUpdateForDetection");
-            _shape = serializedObject.FindProperty("shape");
-            _radius = serializedObject.FindProperty("radius");
+            script = (NormalSource)target;
+            _falloff = serializedObject.FindProperty("falloff");
+            _probes = serializedObject.FindProperty("probes");
         }
 
         public override void OnInspectorGUI() {
             serializedObject.Update();
 
             GUI.enabled = true;
-            _autoDetectNormalSystem.boolValue = EditorGUILayout.ToggleLeft("Automatically find 'NormalSystem' component on a camera.", _autoDetectNormalSystem.boolValue);
+            EditorGUILayout.PropertyField(_falloff, new GUIContent("Falloff (radius)"));
 
-            GUI.enabled = true;
-            if(_autoDetectNormalSystem.boolValue)
-                _useUpdateForDetection.boolValue = EditorGUILayout.ToggleLeft("Use 'Update()' for detection. (try to avoid using this)", _useUpdateForDetection.boolValue);
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(_probes, new GUIContent("Affected Probes"), true);
 
-            GUI.enabled = !_autoDetectNormalSystem.boolValue;
-            EditorGUILayout.PropertyField(_normalSystem, new GUIContent("Normal System"));
-
-            GUI.enabled = true;
-            EditorGUILayout.PropertyField(_shape, new GUIContent("Shape"));
-
-            if(_shape.intValue == 0)
-                EditorGUILayout.PropertyField(_radius, new GUIContent("Radius"));
-            
             serializedObject.ApplyModifiedProperties();
         }
     }
-
-    [Serializable]
-    public enum LightShape { Circle }
     #endregion
 
-    [ExecuteInEditMode]
-    [RequireComponent(typeof(Light2D.LightSprite))]
+    /// <summary>
+    /// Component Attached to lights that let NormalRenderer components know where a source is via Rigidbody2D collision.
+    /// </summary>
+    [RequireComponent(typeof(LightSprite))]
+    [RequireComponent(typeof(Collider2D))]
     public class NormalSource : MonoBehaviour {
         #region Variables
-        public bool autoDetectNormalSystem = true;
-        public bool useUpdateForDetection = false;
-        public NormalSystem normalSystem;
+        /// <summary>The light source's effect on the material based on distance. (power : distance : : [1, 0] : [0, falloff])</summary>
+        public float falloff = 1.0f;
 
-        public LightShape shape;
-        public float radius = 1.0f;
-        public float angle = 10.0f, direction = 0.0f;
+        /// <summary>The NormalRenderer components that this source is affecting.</summary>
+        public List<LightProbe> probes = new List<LightProbe>();
+        LightProbe probe;
         #endregion
 
-        private void Start() {
-            if(autoDetectNormalSystem && !useUpdateForDetection) {
-                foreach(Camera camera in Camera.allCameras) {
-                    NormalSystem normalSystem = camera.GetComponent<NormalSystem>();
-                    if(normalSystem != null) this.normalSystem = normalSystem;
-                }
+        private void OnTriggerEnter2D(Collider2D collider) {
+            probe = collider.gameObject.GetComponent<LightProbe>();
+            if(probe != null) {
+                probe.lights.Add(this);
+                probes.Add(probe);
             }
         }
 
-        private void Update() {
-            if(autoDetectNormalSystem && useUpdateForDetection) {
-                foreach(Camera camera in Camera.allCameras) {
-                    NormalSystem normalSystem = camera.GetComponent<NormalSystem>();
-                    if(normalSystem != null) this.normalSystem = normalSystem;
-                }
+        private void OnTriggerExit2D(Collider2D collider) {
+            probe = collider.gameObject.GetComponent<LightProbe>();
+            if(probe != null) {
+                probe.lights.Remove(this);
+                probes.Remove(probe);
             }
         }
-        
-        public NormalComponents ComponentsAtPosition(Vector2 position) {
-            float v = 0, h = 0;
-            if(shape == LightShape.Circle) {
-                h = (transform.position.x - position.x) / radius;
-                v = (transform.position.y - position.y) / radius;
-            }
-            return new NormalComponents(v, h);
+
+        private void OnDestroy() {
+            foreach(LightProbe probe in probes) probe.lights.Remove(this);
         }
     }
 }

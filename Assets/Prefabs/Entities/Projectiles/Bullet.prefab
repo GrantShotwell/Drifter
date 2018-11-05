@@ -174,7 +174,12 @@ MonoBehaviour:
   damagePosition:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Damager+DamageEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+    m_TypeName: Damager+DamageEvent1, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  damageCollider:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: Damager+DamageEvent2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
 --- !u!114 &114706424381931706
 MonoBehaviour:
@@ -225,8 +230,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1678178617
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 95636bf4f45bb174cb186d0a3d5505c5, type: 3}
   m_Color: {r: 0.9811321, g: 0.9462884, b: 0, a: 1}

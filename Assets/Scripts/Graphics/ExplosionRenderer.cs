@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ExplosionRenderer : MonoBehaviour {
     new public GameObject light;
-    Normal2D.NormalSource normalSource;
+    Light2D.NormalSource normalSource;
     float originalSize;
     public float speed = 2.0f;
     public bool editMaterialMode = false;
@@ -15,8 +15,8 @@ public class ExplosionRenderer : MonoBehaviour {
         start = Time.time;
         renderer = GetComponent<SpriteRenderer>();
         if(light != null) {
-            normalSource = light.GetComponent<Normal2D.NormalSource>();
-            originalSize = normalSource.radius;
+            normalSource = light.GetComponent<Light2D.NormalSource>();
+            originalSize = normalSource.falloff;
         }
     }
 
@@ -38,7 +38,7 @@ public class ExplosionRenderer : MonoBehaviour {
                 lightColor.a = 1 - progress;
                 light.GetComponent<Light2D.LightSprite>().Color = lightColor;
 
-                if(normalSource != null) normalSource.radius = originalSize / progress;
+                if(normalSource != null) normalSource.falloff = originalSize / progress;
             }
 
             renderer.sharedMaterial = material;

@@ -5,6 +5,8 @@ TextureImporter:
     21300000: ch_arms_0
     21300002: ch_arms_1
     21300004: ch_arms_2
+    21300006: ch_arms_3
+    21300008: ch_arms_4
   externalObjects: {}
   serializedVersion: 7
   mipmaps:
@@ -66,7 +68,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 2
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -77,7 +79,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 2
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -101,7 +103,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b7af3f1e8739ed4419884f3d1ffe62a8
+      spriteID: 0ee546abb8b7f264ea3ee54ad46848e5
       vertices: []
       indices: 
       edges: []
@@ -121,7 +123,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7c25ac1c77c525e4aa14b34feeb8276c
+      spriteID: 75a188899a6f174479c82ed78aed1ccd
       vertices: []
       indices: 
       edges: []
@@ -135,13 +137,53 @@ TextureImporter:
         width: 41
         height: 24
       alignment: 9
-      pivot: {x: 0.5243902, y: 0.083333336}
+      pivot: {x: 0.5, y: 0.083333336}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7677d0c3fbb2fce49adad4ed30a228ab
+      spriteID: 70038a1b4149e2d42bdc0ff74cff4b81
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ch_arms_3
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 0
+        width: 41
+        height: 24
+      alignment: 9
+      pivot: {x: 0.5, y: 0.083333336}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59b99b60b7366c146bcfa0c111415568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ch_arms_4
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 0
+        width: 41
+        height: 24
+      alignment: 9
+      pivot: {x: 0.5, y: 0.083333336}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 90610e1becc495e44b21d8cf17a862c0
       vertices: []
       indices: 
       edges: []

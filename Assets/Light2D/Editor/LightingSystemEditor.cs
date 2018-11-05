@@ -16,7 +16,7 @@ namespace Light2D
         private SerializedProperty _enableAmbientLight;
         private SerializedProperty _blurLightSources;
         private SerializedProperty _blurAmbientLight ;
-        private SerializedProperty  _hdr ;
+        private SerializedProperty  _hdr;
         private SerializedProperty _lightObstaclesAntialiasing;
         private SerializedProperty _ambientLightComputeMaterial;
         private SerializedProperty _lightOverlayMaterial;
@@ -24,8 +24,9 @@ namespace Light2D
         private SerializedProperty _ambientLightBlurMaterial;
         private SerializedProperty _lightCamera;
         private SerializedProperty _lightSourcesLayer;
-        private SerializedProperty _ambientLightLayer;
+        private SerializedProperty _lightProbesLayer;
         private SerializedProperty _lightObstaclesLayer;
+        private SerializedProperty _ambientLightLayer;
         private SerializedProperty _lightObstaclesDistance;
         private SerializedProperty _lightTexturesFilterMode;
         private SerializedProperty _enableNormalMapping;
@@ -51,6 +52,7 @@ namespace Light2D
             _ambientLightBlurMaterial = serializedObject.FindProperty("AmbientLightBlurMaterial");
             _lightCamera = serializedObject.FindProperty("LightCamera");
             _lightSourcesLayer = serializedObject.FindProperty("LightSourcesLayer");
+            _lightProbesLayer = serializedObject.FindProperty("LightProbesLayer");
             _ambientLightLayer = serializedObject.FindProperty("AmbientLightLayer");
             _lightObstaclesLayer = serializedObject.FindProperty("LightObstaclesLayer");
             _lightObstaclesDistance = serializedObject.FindProperty("LightObstaclesDistance");
@@ -148,11 +150,6 @@ namespace Light2D
 
             EditorGUILayout.PropertyField(_hdr, new GUIContent("64 Bit Color"));
             EditorGUILayout.PropertyField(_lightObstaclesAntialiasing, new GUIContent("Light Obstacles Antialiasing"));
-            EditorGUILayout.PropertyField(_enableNormalMapping, new GUIContent("Normal Mapping"));
-            if (_enableNormalMapping.boolValue && isMobileTarget)
-            {
-                EditorGUILayout.LabelField("WARNING: Normal mapping is not supported on mobiles.");
-            }
             //EditorGUILayout.PropertyField(_affectOnlyThisCamera, new GUIContent("Affect Only This Camera"));
             _lightTexturesFilterMode.enumValueIndex = (int)(FilterMode)EditorGUILayout.EnumPopup(
                 "Texture Filtering", (FilterMode)_lightTexturesFilterMode.enumValueIndex);
@@ -180,6 +177,7 @@ namespace Light2D
             EditorGUILayout.PropertyField(_lightOverlayMaterial, new GUIContent("Light Overlay Material"));
             EditorGUILayout.PropertyField(_lightCamera, new GUIContent("Lighting Camera"));
             _lightSourcesLayer.intValue = EditorGUILayout.LayerField(new GUIContent("Light Sources Layer"), _lightSourcesLayer.intValue);
+            _lightProbesLayer.intValue = EditorGUILayout.LayerField(new GUIContent("Light Probes Layer"), _lightProbesLayer.intValue);
             _lightObstaclesLayer.intValue = EditorGUILayout.LayerField(new GUIContent("Light Obstacles Layer"), _lightObstaclesLayer.intValue);
             _ambientLightLayer.intValue = EditorGUILayout.LayerField(new GUIContent("Ambient Light Layer"), _ambientLightLayer.intValue);
 

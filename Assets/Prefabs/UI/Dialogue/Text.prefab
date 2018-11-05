@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1466772291740054}
+  m_IsPrefabAsset: 1
+--- !u!1 &1466772291740054
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4142076315245676}
+  - component: {fileID: 114975871807319578}
+  m_Layer: 0
+  m_Name: Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4142076315245676
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1466772291740054}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114975871807319578
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1466772291740054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a84e2451f67371940bf90c96e76eed54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: 
+  alignment: 1
+  size: 0.9
+  letters:
+    letterBase: {fileID: 1025470871869906, guid: a0b2356e4aac0f84f930fc231b8d816a,
+      type: 2}
+    A:
+    - {fileID: 21300000, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    B:
+    - {fileID: 21300002, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    C:
+    - {fileID: 21300004, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    D:
+    - {fileID: 21300006, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    E:
+    - {fileID: 21300008, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    F:
+    - {fileID: 21300010, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    G:
+    - {fileID: 21300012, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    H:
+    - {fileID: 21300014, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    I:
+    - {fileID: 21300016, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    J:
+    - {fileID: 21300018, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    K:
+    - {fileID: 21300020, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    L:
+    - {fileID: 21300022, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    M:
+    - {fileID: 21300024, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    N:
+    - {fileID: 21300026, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    O:
+    - {fileID: 21300028, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    P:
+    - {fileID: 21300030, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    Q:
+    - {fileID: 21300032, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    R:
+    - {fileID: 21300034, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    S:
+    - {fileID: 21300036, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    T:
+    - {fileID: 21300038, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    U:
+    - {fileID: 21300040, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    V:
+    - {fileID: 21300042, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    W:
+    - {fileID: 21300044, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    X:
+    - {fileID: 21300046, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    Y:
+    - {fileID: 21300048, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    Z:
+    - {fileID: 21300050, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    charS:
+    - {fileID: 21300052, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    charE:
+    - {fileID: 21300054, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    charQ:
+    - {fileID: 21300056, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    charP:
+    - {fileID: 21300058, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}
+    charC:
+    - {fileID: 21300060, guid: 3d0139c5e6a2f214ea84218f1dca4570, type: 3}

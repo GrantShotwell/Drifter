@@ -87,8 +87,9 @@ namespace Light2D
         public Material AmbientLightBlurMaterial;
         public Camera LightCamera;
         public int LightSourcesLayer;
-        public int AmbientLightLayer;
+        public int LightProbesLayer;
         public int LightObstaclesLayer;
+        public int AmbientLightLayer;
 
         private RenderTexture _ambientEmissionTexture;
         private RenderTexture _ambientTexture;

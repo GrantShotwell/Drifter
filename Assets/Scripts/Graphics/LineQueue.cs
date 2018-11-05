@@ -54,14 +54,13 @@ public class LinePainter {
     }
     public static void Line(Vector2 start, Vector2 end, Material material, Color color, Camera camera) {
         Vector2 screenDimentions = new Vector2(Screen.width, Screen.height);
-        GL.PushMatrix();
-        material.SetPass(0);
+        
         GL.LoadOrtho();
         GL.Begin(GL.LINES);
+        material.SetPass(0);
         GL.Color(color);
         GL.Vertex(camera.WorldToScreenPoint(start) / screenDimentions);
         GL.Vertex(camera.WorldToScreenPoint(end) / screenDimentions);
         GL.End();
-        GL.PopMatrix();
     }
 }

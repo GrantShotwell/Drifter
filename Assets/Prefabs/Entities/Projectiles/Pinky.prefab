@@ -39,6 +39,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4052631959721830}
+  - component: {fileID: 58585392391759000}
+  - component: {fileID: 50544009446142704}
   - component: {fileID: 114278973917620096}
   - component: {fileID: 114083883492982752}
   - component: {fileID: 23350621359713690}
@@ -119,6 +121,26 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1927954231051640}
   m_Mesh: {fileID: 0}
+--- !u!50 &50544009446142704
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1927954231051640}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!50 &50985619057628976
 Rigidbody2D:
   serializedVersion: 4
@@ -139,6 +161,21 @@ Rigidbody2D:
   m_SleepingMode: 0
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!58 &58585392391759000
+CircleCollider2D:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1927954231051640}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.65
 --- !u!58 &58910417088480508
 CircleCollider2D:
   m_ObjectHideFlags: 1
@@ -182,13 +219,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bc8a5920e8b2544782c0a98f1b9fe40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoDetectNormalSystem: 1
-  useUpdateForDetection: 1
-  normalSystem: {fileID: 0}
-  shape: 0
-  radius: 1
-  angle: 10
-  direction: 0
+  falloff: 5
+  normals: []
 --- !u!114 &114520589310035646
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -286,8 +318,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1678178617
+  m_SortingLayer: -3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 6829db1cb9f65c44c90ea6fd496979d3, type: 3}
   m_Color: {r: 1, g: 0, b: 0.8741455, a: 1}

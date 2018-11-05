@@ -4,6 +4,10 @@
 	{
 		_MainTex("Texture", 2D) = "white" {}
 		_Normal("Normal", 2D) = "white" {}
+		[PerRendererData] _Up("Up Value", float) = 0
+		[PerRendererData] _Dn("Down Value", float) = 0
+		[PerRendererData] _Rt("Right Value", float) = 0
+		[PerRendererData] _Lt("Left Value", float) = 0
 	}
 
 	SubShader
@@ -11,10 +15,12 @@
 		Tags
 		{
 			"Queue" = "Transparent"
+			"RenderType" = "Transparent"
 		}
 
 		Pass
 		{
+			ZWrite Off
 			Blend SrcAlpha OneMinusSrcAlpha
 			
 			CGPROGRAM
@@ -63,7 +69,7 @@
 					else if (Lt && Up) dt = dot(n, float2(_Lt, _Up));
 					else if (Lt && Dn) dt = dot(n, float2(_Lt, _Dn));
 
-					dt = (dt + 1) / 2; //inverse of nX and nY
+					dt = (dt + 1) / 2;
 					dt += 0.5;
 				}
 
