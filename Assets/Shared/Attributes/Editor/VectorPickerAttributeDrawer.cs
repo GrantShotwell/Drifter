@@ -65,7 +65,7 @@ public class VectorPickerDrawer : PropertyDrawer {
             Selection.activeGameObject = selection;
 
             // Remove SceneView callback
-            SceneView.onSceneGUIDelegate -= UpdateSceneView;
+            SceneView.duringSceneGui -= UpdateSceneView;
 
         }
     }
@@ -120,7 +120,7 @@ public class VectorPickerDrawer : PropertyDrawer {
         }
 
         if(trackingThis) {
-            SceneView.onSceneGUIDelegate = UpdateSceneView;
+            SceneView.duringSceneGui += UpdateSceneView;
             stored.vector2Value = worldPoint;
 
             // Track position until either Mouse button 0 (to confirm) or Escape (to cancel) is clicked

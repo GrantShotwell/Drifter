@@ -1,21 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MyStuff;
+using MyStuff.GeometryObjects;
 
 public class CameraController : MonoBehaviour {
-    public Transform target;
-
     public enum FollowType { Lerp, Velocity, Position };
-    public FollowType followType;
-    Rigidbody2D targetRigidbody;
 
+    public Transform target;
+    public FollowType followType;
     public float lerp = 0.1f;
     public float velMult = 0.5f;
+    public float baseSize = 9f;
+    public float zoomMultiplier = 3.0f;
+    public int velocityPoints = 100;
+
+    Rigidbody2D targetRigidbody;
+    new Camera camera;
+    LineQueue lineQueue;
+    RollingArray velocities;
 
     private void Start() {
+        if(target != null)
+            MoveToPosition(target.transform.position);
+        velocities = new RollingArray(velocityPoints);
         targetRigidbody = target.GetComponent<Rigidbody2D>();
         if(followType == FollowType.Velocity && targetRigidbody == null)
             followType = FollowType.Position;
+        camera = GetComponent<Camera>();
+        lineQueue = GetComponent<LineQueue>();
+        camera.orthographicSize = baseSize;
     }
 
     private void LateUpdate() {
@@ -34,19 +48,34 @@ public class CameraController : MonoBehaviour {
             switch(followType) {
                 case FollowType.Lerp:
                     end = Vector2.Lerp(cam, pos, lerp);
-                    transform.position = new Vector3(end.x, end.y, cam.z);
+                    MoveToPosition(end);
                     break;
                 case FollowType.Position:
-                    transform.position = new Vector3(pos.x, pos.y, cam.z);
+                    end = pos;
+                    MoveToPosition(end);
                     break;
                 case FollowType.Velocity:
                     vel = targetRigidbody.velocity * velMult + (Vector2)target.transform.position;
                     end = Vector2.Lerp(cam, vel, lerp);
-                    transform.position = new Vector3(end.x, end.y, cam.z);
+                    MoveToPosition(end);
                     break;
                 default: break;
             }
+
             #endregion
+
         }
+
+        if(targetRigidbody != null)
+            velocities.Add(targetRigidbody.velocity.magnitude);
+        camera.orthographicSize = baseSize + velocities.average * zoomMultiplier;
+    }
+
+    private void MoveToPosition(Vector2 position) {
+        transform.position = new Vector3(
+            position.x,
+            position.y,
+            transform.position.z
+        );
     }
 }

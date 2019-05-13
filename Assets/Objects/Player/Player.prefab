@@ -225,6 +225,7 @@ GameObject:
   - component: {fileID: 8997398637853571345}
   - component: {fileID: 8997398637853571349}
   - component: {fileID: 9173179389528723337}
+  - component: {fileID: 7941496542223989694}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -313,9 +314,10 @@ MonoBehaviour:
   slideAcceleration: 5
   walljumpSpeed: 10
   walljumpCooldown: 0.5
-  horizontalForce: 5
-  verticalForce: 5
+  horizontalForce: 2
+  verticalForce: 2
   friction: 0.01
+  retractRate: 0.1
   boxError: 0.99
   groundError: 0.02
   wallError: 0.02
@@ -350,3 +352,18 @@ MonoBehaviour:
         m_Calls: []
       m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
+--- !u!114 &7941496542223989694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8997398637853571348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78388b02f9cf58b478e761383c00599f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lineQueue: {fileID: 0}
+  color: {r: 1, g: 1, b: 1, a: 1}
+  minimumLength: 0.1

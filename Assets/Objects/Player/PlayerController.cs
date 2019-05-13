@@ -24,9 +24,13 @@ public class PlayerController : MonoBehaviour {
     public float verticalForce = 5.0f;
     public float friction = 0.01f;
 
+    [Header("Rope Movement")]
+    public float retractRate = 0.1f;
+
 
     [Header("Other")]
     public float boxError = 1.01f;
+    public LineQueue lineQueue;
 
     public float groundError = 0.02f;
     public bool onGround { get; private set; }
@@ -52,6 +56,7 @@ public class PlayerController : MonoBehaviour {
 
     new Rigidbody2D rigidbody;
     BoxCollider2D boxCollider;
+    Rope rope;
     float height => boxCollider.size.y * transform.localScale.y;
     #endregion
 
@@ -62,10 +67,36 @@ public class PlayerController : MonoBehaviour {
         rigidbody = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
         size = boxCollider.size * transform.lossyScale;
+        rope = GetComponent<Rope>();
+    }
+
+    public RaycastHit2D aim;
+    private void LateUpdate() {
+        var position = (Vector2)transform.position;
+        var mouse = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        #region Aiming
+        aim = Physics2D.Raycast(position, mouse - position);
+        if(aim) {
+            if(lineQueue != null) lineQueue.NewLineFromPlayer(transform.position, aim.point, Color.red);
+
+            var fire1 = Input.GetButtonDown("Fire1");
+            if(fire1) rope.Connect(aim.point);
+
+        }
+
+        var fire2 = Input.GetButtonDown("Fire2");
+        if(fire2) rope.Disconnect();
+
+        var fire3 = Input.GetButtonDown("Fire3");
+        if(fire3) { }
+
+        #endregion
     }
 
     private void FixedUpdate() {
         jumpCoolLeft -= Time.fixedDeltaTime;
+        var position = (Vector2)transform.position;
 
         #region Surface Detection
         // Ground detection //
@@ -141,8 +172,8 @@ public class PlayerController : MonoBehaviour {
             float walljumpForce = jumpInput * walljumpSpeed;
             if(jumpCoolLeft > 0) walljumpForce = 0f;
             if(walljumpForce > 0) jumpCoolLeft = walljumpCooldown;
-            if(facing) rigidbody.AddForce(Vector2.right.Rotate(60f) * walljumpForce, ForceMode2D.Impulse);
-            else rigidbody.AddForce(Vector2.right.Rotate(120f) * walljumpForce, ForceMode2D.Impulse);
+            if(facing) rigidbody.AddForce(Vector2.right.Rotate(Mathf.Deg2Rad * 60f) * walljumpForce, ForceMode2D.Impulse);
+            else rigidbody.AddForce(Vector2.right.Rotate(Mathf.Deg2Rad * 120f) * walljumpForce, ForceMode2D.Impulse);
 
         }
 
@@ -165,13 +196,20 @@ public class PlayerController : MonoBehaviour {
         }
         #endregion
 
+        #region Rope
+        if(rope.attached) {
+            float retractInput = Input.GetAxis("Jump");
+            rope.ShortenRope(retractInput * retractRate);
+        }
+        #endregion
+
     }
     #endregion
 
 
 
     #region Methods
-    
+
     private bool GoodWalkingSpeedOn(GameObject ground, Direction direction) {
         float relativeX = RelativeX(ground);
 
