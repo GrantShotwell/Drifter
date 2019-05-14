@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
-  m_Name: SteelSides
+  m_Name: DebugSides
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 21300000, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
+  m_DefaultSprite: {fileID: 7458056253310806791, guid: beb1a2afb50afa849b1f252234da7b5d,
+    type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules:
   - m_Neighbors: 0000000002000000000000000200000001000000000000000100000000000000
     m_Sprites:
-    - {fileID: 21300000, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300002, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300004, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300006, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
+    - {fileID: 7458056253310806791, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: -1649714947639966508, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: -2876120906721960898, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: 8102586750463514850, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
     m_GameObject: {fileID: 0}
     m_AnimationSpeed: 1
     m_PerlinScale: 0.9
@@ -31,10 +32,10 @@ MonoBehaviour:
     m_RandomTransform: 0
   - m_Neighbors: 0000000001000000000000000100000000000000000000000000000000000000
     m_Sprites:
-    - {fileID: 21300016, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300018, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300020, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300022, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
+    - {fileID: -8553873504901753763, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: 7906754358053246821, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: 4085680409968443419, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: 4448929147602960399, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
     m_GameObject: {fileID: 0}
     m_AnimationSpeed: 1
     m_PerlinScale: 0.9
@@ -44,10 +45,10 @@ MonoBehaviour:
     m_RandomTransform: 0
   - m_Neighbors: 0000000000000000000000000100000000000000000000000000000000000000
     m_Sprites:
-    - {fileID: 21300008, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300010, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300012, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
-    - {fileID: 21300014, guid: 18edb10a684bf64419e6f0a9849929de, type: 3}
+    - {fileID: 4094020309138134792, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: -4270242926289347806, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: -2373927863895502719, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
+    - {fileID: 5382293190143315790, guid: beb1a2afb50afa849b1f252234da7b5d, type: 3}
     m_GameObject: {fileID: 0}
     m_AnimationSpeed: 1
     m_PerlinScale: 0.9

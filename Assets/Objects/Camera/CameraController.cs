@@ -18,12 +18,12 @@ public class CameraController : MonoBehaviour {
     Rigidbody2D targetRigidbody;
     new Camera camera;
     LineQueue lineQueue;
-    RollingArray velocities;
+    RollingFloatArray velocities;
 
     private void Start() {
         if(target != null)
             MoveToPosition(target.transform.position);
-        velocities = new RollingArray(velocityPoints);
+        velocities = new RollingFloatArray(velocityPoints);
         targetRigidbody = target.GetComponent<Rigidbody2D>();
         if(followType == FollowType.Velocity && targetRigidbody == null)
             followType = FollowType.Position;

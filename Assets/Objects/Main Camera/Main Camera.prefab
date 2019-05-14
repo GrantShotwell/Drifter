@@ -44,7 +44,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0.495283, g: 0.9278845, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -104,15 +104,6 @@ MonoBehaviour:
   baseSize: 9
   zoomMultiplier: 3
   velocityPoints: 100
-  showLines: 1
-  lineColor: {r: 1, g: 0, b: 0, a: 1}
-  lineRange:
-    x:
-      min: -0.5
-      max: 0.5
-    y:
-      min: -0.5
-      max: 0.5
 --- !u!114 &3050944435706590260
 MonoBehaviour:
   m_ObjectHideFlags: 0

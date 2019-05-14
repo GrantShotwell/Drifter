@@ -1415,14 +1415,14 @@ namespace MyStuff {
     /// A float array that is efficient in calculating an average for data that is always changing.
     /// </summary>
     [System.Serializable]
-    public class RollingArray {
+    public class RollingFloatArray {
         private float[] array;
         private int index = 0;
 
         public float sum { get; private set; }
         public float average => sum / array.Length;
 
-        public RollingArray(int size) { array = new float[size]; }
+        public RollingFloatArray(int size) { array = new float[size]; }
 
         public void Add(float number) {
             sum -= array[index];
@@ -1430,6 +1430,41 @@ namespace MyStuff {
             array[index] = number;
             index = array.Length % ++index;
         }
+    }
+
+    /// <summary>
+    /// A UnityEngine.Object array. Add(T) will remove the oldest item if the size has been reached.
+    /// </summary>
+    /// <typeparam name="T">Type of the array.</typeparam>
+    public class RollingArray<T> {
+        private readonly T[] array;
+        private int offset = 0;
+        public readonly int size;
+        private readonly Action<T> destroy;
+
+        public RollingArray(int size, Action<T> destroy) {
+            array = new T[size];
+            this.size = size;
+            this.destroy = destroy;
+        }
+
+        public T Get(int index) {
+            if(index + offset >= size)
+                index -= size;
+            return array[index];
+        }
+
+        public void Add(T item) {
+            offset++;
+            if(offset >= size)
+                offset -= size;
+            if(array[offset] != null)
+                Destroy(array[offset]);
+            array[offset] = item;
+        }
+
+        public void Destroy(T item) { destroy(item); }
+        public void Destroy(int index) { destroy(Get(index)); }
     }
     #endregion
 
