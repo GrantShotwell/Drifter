@@ -163,14 +163,16 @@ public class Rope : MonoBehaviour {
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(Point2, normal + Point2);
             
-            if(debugs.Length > 5) {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(debugs[0], debugs[1]);
-                Gizmos.DrawLine(debugs[2], debugs[3]);
+            if(debugs != null) {
+                if(debugs.Length > 5) {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawLine(debugs[0], debugs[1]);
+                    Gizmos.DrawLine(debugs[2], debugs[3]);
 
-                Gizmos.color = Color.green;
-                Gizmos.DrawLine(Point2, debugs[4]);
-                Gizmos.DrawLine(Point2, debugs[5]);
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawLine(Point2, debugs[4]);
+                    Gizmos.DrawLine(Point2, debugs[5]);
+                }
             }
         }
     }

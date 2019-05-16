@@ -64,6 +64,7 @@ public class PlayerController : MonoBehaviour {
 
     #region Update
     private void Start() {
+        MyFunctions.AddCameraListener(this);
         rigidbody = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
         size = boxCollider.size * transform.lossyScale;
@@ -71,7 +72,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     public RaycastHit2D aim;
-    private void LateUpdate() {
+    private void OnCameraReady() {
         var position = (Vector2)transform.position;
         var mouse = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -90,7 +91,6 @@ public class PlayerController : MonoBehaviour {
 
         var fire3 = Input.GetButtonDown("Fire3");
         if(fire3) { }
-
         #endregion
     }
 

@@ -1479,34 +1479,44 @@ namespace MyStuff {
             if(array == null) return default(T);
             return array[UnityEngine.Random.Range(0, array.Length - 1)];
         }
-        
-        /// <summary>
-        /// Finds the children of a GameObject.
-        /// </summary>
-        /// <param name="gameObject">The parent GameObject.</param>
-        /// <returns>Returns a GameObject[] array of all the children of the parent.</returns>
-        public static GameObject[] GetChildren(GameObject gameObject) { return GetChildren(gameObject.transform); }
-
-        /// <summary>
-        /// Finds the children of a Transform.
-        /// </summary>
-        /// <param name="transform">The parent Transform.</param>
-        /// <returns>Returns a GameObject[] array of all the children of the parent.</returns>
-        public static GameObject[] GetChildren(Transform transform) {
-            GameObject[] children = new GameObject[transform.childCount];
-            for(int j = 0; j < children.Length; j++)
-                children[j] = transform.GetChild(j).gameObject;
-            return children;
-        }
 
         /// <summary>
         /// Checks if called within fixed or update time, and returns the respective time.
         /// </summary>
-        public static float time {
-            get {
-                if(Time.inFixedTimeStep) return Time.fixedTime;
-                else return Time.time;
+        public static float Time =>
+            UnityEngine.Time.inFixedTimeStep ?
+                UnityEngine.Time.fixedTime :
+                UnityEngine.Time.time;
+
+        /// <summary>
+        /// Finds the first camera (Camera.main preferred) that has a CameraController.
+        /// Throws an error if one cannot be found.
+        /// </summary>
+        /// <returns></returns>
+        public static CameraController GetCameraController() {
+            CameraController controller = Camera.main.GetComponent<CameraController>();
+            if(controller != null) return controller;
+            else {
+                controller = UnityEngine.Object.FindObjectOfType<CameraController>();
+                if(controller != null) return controller;
+                else throw new CameraNotFoundException();
             }
+        }
+
+        /// <summary>
+        /// Allows the use of 'OnCameraReady()' in the MonoBehavior.
+        /// </summary>
+        /// <param name="component">Monobehavior to add a listener to.</param>
+        /// <returns>Returns the camera.</returns>
+        public static Camera AddCameraListener(MonoBehaviour component) {
+            Camera camera = GetCameraController().GetCamera;
+            camera.GetComponent<CameraController>().recievers.Add(component);
+            return camera;
+        }
+
+        public class CameraNotFoundException : Exception {
+            public CameraNotFoundException() : base() { }
+            public CameraNotFoundException(string message) : base(message) { }
         }
     }
     #endregion
@@ -1617,6 +1627,26 @@ namespace MyStuff {
         #endregion
 
         #region Misc.
+
+        /// <summary>
+        /// Finds the children of a GameObject.
+        /// </summary>
+        /// <param name="gameObject">The parent GameObject.</param>
+        /// <returns>Returns a GameObject[] array of all the children of the parent.</returns>
+        public static GameObject[] GetChildren(this GameObject gameObject) { return GetChildren(gameObject.transform); }
+
+        /// <summary>
+        /// Finds the children of a Transform.
+        /// </summary>
+        /// <param name="transform">The parent Transform.</param>
+        /// <returns>Returns a GameObject[] array of all the children of the parent.</returns>
+        public static GameObject[] GetChildren(this Transform transform) {
+            GameObject[] children = new GameObject[transform.childCount];
+            for(int j = 0; j < children.Length; j++)
+                children[j] = transform.GetChild(j).gameObject;
+            return children;
+        }
+
         public static string String(this char[] chars) {
             string s = string.Empty;
             foreach(char c in chars) s += c;

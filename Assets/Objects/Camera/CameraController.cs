@@ -20,6 +20,11 @@ public class CameraController : MonoBehaviour {
     LineQueue lineQueue;
     RollingFloatArray velocities;
 
+    public Camera GetCamera => camera ?? GetComponent<Camera>();
+
+    [HideInInspector]
+    public List<MonoBehaviour> recievers = new List<MonoBehaviour>(8);
+
     private void Start() {
         if(target != null)
             MoveToPosition(target.transform.position);
@@ -69,6 +74,9 @@ public class CameraController : MonoBehaviour {
         if(targetRigidbody != null)
             velocities.Add(targetRigidbody.velocity.magnitude);
         camera.orthographicSize = baseSize + velocities.average * zoomMultiplier;
+
+        foreach(MonoBehaviour component in recievers)
+            component.SendMessage("OnCameraReady", SendMessageOptions.DontRequireReceiver);
     }
 
     private void MoveToPosition(Vector2 position) {
