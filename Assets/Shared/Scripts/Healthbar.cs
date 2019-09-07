@@ -13,7 +13,8 @@ public class HealthbarEditor : Editor {
     AnimBool m_ShowFields1;
     SerializedProperty
         _max,
-        _invincibilityTime;
+        _invincibilityTime,
+        _events;
 
     private void OnEnable() {
         script = (Healthbar)target;
@@ -21,6 +22,7 @@ public class HealthbarEditor : Editor {
         m_ShowFields1.valueChanged.AddListener(Repaint);
         _max = serializedObject.FindProperty("max");
         _invincibilityTime = serializedObject.FindProperty("invincibilityTime");
+        _events = serializedObject.FindProperty("events");
     }
 
     public override void OnInspectorGUI() {
@@ -40,6 +42,9 @@ public class HealthbarEditor : Editor {
 
         /**/ GUI.enabled = false;
         EditorGUILayout.IntField(new GUIContent("Overflow"), script.overflow);
+
+        /**/ GUI.enabled = true;
+        EditorGUILayout.PropertyField(_events, new GUIContent("Events"));
 
         serializedObject.ApplyModifiedProperties();
     }

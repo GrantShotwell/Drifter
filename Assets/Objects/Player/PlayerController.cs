@@ -4,6 +4,7 @@ using UnityEngine;
 using MyStuff;
 using MyStuff.GeometryObjects;
 
+[RequireComponent(typeof(PlayerClass))]
 public class PlayerController : MonoBehaviour {
     #region Variables
     [Header("Ground Movement")]
@@ -27,10 +28,8 @@ public class PlayerController : MonoBehaviour {
     [Header("Rope Movement")]
     public float retractRate = 0.1f;
 
-
     [Header("Other")]
     public float boxError = 1.01f;
-    public LineQueue lineQueue;
 
     public float groundError = 0.02f;
     public bool onGround { get; private set; }
@@ -43,47 +42,52 @@ public class PlayerController : MonoBehaviour {
     public bool inAir => (!onWall) && (!onGround);
     public float airTime { get; private set; }
 
-    /// <summary>True: right, False: left</summary>
+    public int flashModulus = 2;
+    public int flashThreshold = 0;
+
+    /// <summary>True = Right, False = Left</summary>
     public bool facing { get; private set; }
 
-    [HideInInspector]
-    public Vector2 size;
+    [HideInInspector] public Vector2 size;
 
     public class InputSummary { public float horizontal, vertical; }
-    [HideInInspector]
-    public InputSummary inputs = new InputSummary();
+    [HideInInspector] public InputSummary inputs = new InputSummary();
 
+    PlayerClass player;
+    new Rigidbody2D rigidbody => player.rigidbody;
+    BoxCollider2D boxCollider => player.collider;
+    Rope rope => player.rope;
+    SpriteRenderer spriteRenderer => player.renderer;
+    LineRenderer lineRenderer => player.line;
+    Healthbar healthbar => player.healthbar;
 
-    new Rigidbody2D rigidbody;
-    BoxCollider2D boxCollider;
-    Rope rope;
-    float height => boxCollider.size.y * transform.localScale.y;
+    float Width => boxCollider.size.x * transform.localScale.x;
+    float Height => boxCollider.size.y * transform.localScale.y;
     #endregion
 
-
-
     #region Update
-    private void Start() {
+    public void Start() {
         MyFunctions.AddCameraListener(this);
-        rigidbody = GetComponent<Rigidbody2D>();
-        boxCollider = GetComponent<BoxCollider2D>();
+        player = GetComponent<PlayerClass>();
         size = boxCollider.size * transform.lossyScale;
-        rope = GetComponent<Rope>();
     }
 
     public RaycastHit2D aim;
-    private void OnCameraReady() {
+    public void OnCameraReady() {
         var position = (Vector2)transform.position;
         var mouse = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         #region Aiming
-        aim = Physics2D.Raycast(position, mouse - position);
+        var aimDirection = mouse - position;
+        aim = Physics2D.Raycast(position, aimDirection);
         if(aim) {
-            if(lineQueue != null) lineQueue.NewLineFromPlayer(transform.position, aim.point, Color.red);
+            lineRenderer.SetPositions(new Vector3[] { transform.position, aim.point });
 
             var fire1 = Input.GetButtonDown("Fire1");
             if(fire1) rope.Connect(aim.point);
 
+        } else {
+            lineRenderer.SetPositions(new Vector3[] { transform.position, aimDirection.normalized * 100000 });
         }
 
         var fire2 = Input.GetButtonDown("Fire2");
@@ -94,7 +98,14 @@ public class PlayerController : MonoBehaviour {
         #endregion
     }
 
-    private void FixedUpdate() {
+    public void Update() {
+        var newColor = spriteRenderer.color;
+        if(healthbar.invincible) newColor.a = Time.frameCount % flashModulus > flashThreshold ? 0f : 1f;
+        else newColor.a = 1f;
+        spriteRenderer.color = newColor;
+    }
+
+    public void FixedUpdate() {
         jumpCoolLeft -= Time.fixedDeltaTime;
         var position = (Vector2)transform.position;
 
@@ -197,16 +208,26 @@ public class PlayerController : MonoBehaviour {
         #endregion
 
         #region Rope
-        if(rope.attached) {
+        if(rope.Attached) {
             float retractInput = Input.GetAxis("Jump");
             rope.ShortenRope(retractInput * retractRate);
         }
         #endregion
 
     }
+
+    public void OnDamage() {
+    }
+
+    public void OnHealed() {
+
+    }
+
+    public void OnDeath() {
+
+    }
+
     #endregion
-
-
 
     #region Methods
 

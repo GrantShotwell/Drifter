@@ -32,8 +32,8 @@ public class SkyboxSprite : MonoBehaviour {
         );
 
         transform.localScale = new Vector3(
-            cam.camera.orthographicSize,
-            cam.camera.orthographicSize,
+            cam.camera.orthographicSize * 100,
+            cam.camera.orthographicSize * 100,
             0
         );
 

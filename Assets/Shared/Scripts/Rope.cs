@@ -8,17 +8,16 @@ using System;
 public class Rope : MonoBehaviour {
 
     #region Variables
-    public LineQueue lineQueue;
-    public Color color;
     public float minimumLength = 0.1f;
-    public bool attached => Count > 0;
-
+    public bool Attached => Count > 0;
+    LineRenderer line;
     new Rigidbody2D rigidbody;
     #endregion
 
     #region Update
     private void Start() {
-        rigidbody = GetComponent<Rigidbody2D>();
+        rigidbody = gameObject.GetComponentInParent<Rigidbody2D>();
+        line = GetComponent<LineRenderer>();
     }
 
     #region Internal(ish) Variables
@@ -73,8 +72,6 @@ public class Rope : MonoBehaviour {
             if(!foundEdge) FindEdge();
             else DoUnwrapGeometry();
 
-            lengthUpdate.Invoke(Count - 1);
-
             //Determine if the edge is still 'holding onto' the rope.
             dot = Vector2.Dot(normal, pathNrml);
             angle = Geometry.HeadToTailAngle(Segment1, Segment2);
@@ -85,7 +82,6 @@ public class Rope : MonoBehaviour {
                 Unwrap();
             }
 
-            //Debug
         }
 
         //Wrap
@@ -123,7 +119,7 @@ public class Rope : MonoBehaviour {
                 #endregion
 
                 Vector2 p = Vector2.Lerp(Position, swingpoint, (distance - length) / distance);
-                Vector2 v = TangentVelocity(gameObject, swingpoint);
+                Vector2 v = TangentVelocity(rigidbody, gameObject, swingpoint);
                 v *= ((distance - length) / length) + 1.0f;
                 v += Gp * Time.fixedDeltaTime;
 
@@ -147,33 +143,40 @@ public class Rope : MonoBehaviour {
     #region Visuals
     private void LateUpdate() {
         //Rope display.
-        if(Count > 0) {
-            for(int i = 0; i < Count - 1; i++) {
-                Vector2 start = points[i];
-                Vector2 end = points[i + 1];
-                lineQueue.NewLine(start, end, color);
-            }
-            lineQueue.NewLineFromPlayer(Position, Point2, color);
-        }
+        if(connected) {
+            line.positionCount = Count + 1;
+            for(int i = 0; i < Count; i++)
+                line.SetPosition(i, points[i]);
+            line.SetPosition(Count, Position);
+            line.enabled = true;
+        } else line.enabled = false;
     }
     private void OnDrawGizmosSelected() {
-        if(Count > 1) {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(Point2, pathNrml + Point2);
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLine(Point2, normal + Point2);
-            
-            if(debugs != null) {
-                if(debugs.Length > 5) {
-                    Gizmos.color = Color.yellow;
-                    Gizmos.DrawLine(debugs[0], debugs[1]);
-                    Gizmos.DrawLine(debugs[2], debugs[3]);
+        int x = 1;
+        switch(x) {
+            case 0:
+                if(Count > 1) {
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawLine(Point2, pathNrml + Point2);
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawLine(Point2, normal + Point2);
 
-                    Gizmos.color = Color.green;
-                    Gizmos.DrawLine(Point2, debugs[4]);
-                    Gizmos.DrawLine(Point2, debugs[5]);
+                    if(debugs != null) {
+                        if(debugs.Length > 5) {
+                            Gizmos.color = Color.yellow;
+                            Gizmos.DrawLine(debugs[0], debugs[1]);
+                            Gizmos.DrawLine(debugs[2], debugs[3]);
+
+                            Gizmos.color = Color.green;
+                            Gizmos.DrawLine(Point2, debugs[4]);
+                            Gizmos.DrawLine(Point2, debugs[5]);
+                        }
+                    }
                 }
-            }
+                break;
+            case 1:
+                ExtendedDebug.DrawPinwheel(swingpoint, 45, Color.blue);
+                break;
         }
     }
     #endregion
@@ -229,12 +232,6 @@ public class Rope : MonoBehaviour {
         debugs = new Vector2[6] { start1, end1, start2, end2, hit1.normal + Point2, hit2.normal + Point2 };
     }
 
-    internal Action<int> lengthUpdate = (int maxIndex) => {};
-    internal Action<int> FindLength => (int maxIndex) => {
-        length = Vector2.Distance(Position, points[maxIndex]);
-        lengthUpdate = (int i) => { };
-    };
-
     internal void Wrap(Vector2 point, Collider2D collider) {
         
         //Add point.
@@ -243,30 +240,30 @@ public class Rope : MonoBehaviour {
         //Change swingpoint.
         swingpoint = Point2;
 
-        //Update length after FindEdge() calls.
-        lengthUpdate = FindLength;
+        //Update length.
+        length -= Segment1.magnitude;
 
     }
 
     internal void Unwrap() {
+        
+        //Update length.
+        length += Segment1.magnitude;
 
         //Remove point.
         PointsRemove();
 
         //Change swingpoint.
         if(Count > 1) swingpoint = Point2;
-
-        //Update length after FindEdge() calls.
-        lengthUpdate = FindLength;
+        else swingpoint = points[0];
 
     }
     #endregion
 
     #region Spiderman Physics
-    internal static Vector2 TangentVelocity(GameObject gameObj, Vector2 endpoint) {
+    internal static Vector2 TangentVelocity(Rigidbody2D rigidbody, GameObject gameObj, Vector2 endpoint) {
         //return the lerped velocity so that it is tangent to the circle (the circle being one with a center at 'swingpoint')
 
-        Rigidbody2D rigidbody = gameObj.GetComponent<Rigidbody2D>();
         Transform transform = gameObj.transform;
         Vector2 newVelocity = rigidbody.velocity;
 
@@ -307,7 +304,7 @@ public class Rope : MonoBehaviour {
 
     public void Disconnect() {
         if(Geometry.Exists(rigidbody.velocity) && connected)
-            TangentVelocity(gameObject, swingpoint);
+            TangentVelocity(rigidbody, gameObject, swingpoint);
         PointsClear();
         distance = 0;
     }

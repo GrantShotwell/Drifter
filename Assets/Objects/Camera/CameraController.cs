@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.LWRP;
 using MyStuff;
 using MyStuff.GeometryObjects;
 
@@ -17,7 +18,6 @@ public class CameraController : MonoBehaviour {
 
     Rigidbody2D targetRigidbody;
     new Camera camera;
-    LineQueue lineQueue;
     RollingFloatArray velocities;
 
     public Camera GetCamera => camera ?? GetComponent<Camera>();
@@ -33,7 +33,6 @@ public class CameraController : MonoBehaviour {
         if(followType == FollowType.Velocity && targetRigidbody == null)
             followType = FollowType.Position;
         camera = GetComponent<Camera>();
-        lineQueue = GetComponent<LineQueue>();
         camera.orthographicSize = baseSize;
     }
 

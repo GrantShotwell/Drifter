@@ -69,7 +69,7 @@ namespace MyStuff {
 
         #region Tests
         /// <summary>
-        /// On a 1-Dimentional line, the direction from X1 to X2 is equal to the sign of the input.
+        /// On a 1-Dimentional line, the direction from X1 to X2 is equal to the sign of the difference: X2 - X1.
         /// </summary>
         /// <param name="input">X1 - X2</param>
         /// <returns>Returns the sign of the input (-1 or +1).</returns>
@@ -87,8 +87,7 @@ namespace MyStuff {
             if(input < 0) {
                 if(axis == Axis.Horizontal) return Direction.Down;
                 else return Direction.Left;
-            }
-            else {
+            } else {
                 if(axis == Axis.Horizontal) return Direction.Up;
                 else return Direction.Right;
             }
@@ -468,7 +467,7 @@ namespace MyStuff {
 
         #region Classes
         /// <summary>
-        /// Ties together a value and a unit for an angle. Often used by the Geometry class.
+        /// Ties together a value and a unit for an angle.
         /// </summary>
         public struct Angle {
 
@@ -605,7 +604,7 @@ namespace MyStuff {
         }
 
         /// <summary>
-        /// Stores data and methods for a line. Often used by the Geometry class.
+        /// Stores data and methods for a line.
         /// </summary>
         public class Line {
             /// <summary>ax + by = c;</summary>
@@ -739,7 +738,7 @@ namespace MyStuff {
         }
 
         /// <summary>
-        /// Stores data and methods for a triangle. Often used by the Geometry class.
+        /// Stores data and methods for a triangle.
         /// </summary>
         public struct Triangle {
             public float A, B, C; //angles
@@ -772,7 +771,138 @@ namespace MyStuff {
         }
 
         /// <summary>
-        /// Stores data and methods for a circle. Often used by the Geometry class.
+        /// Stores data and methods for a box with a position.
+        /// </summary>
+        [Serializable]
+        public struct Box {
+            public Range x, y;
+
+            public Vector2 Center => new Vector2(x.Center, y.Center);
+
+            /// <summary>Clockwise, starting from bottom-left.</summary>
+            public Vector2[] Points => new Vector2[] {
+                new Vector2(x.min, y.min),
+                new Vector2(x.min, y.max),
+                new Vector2(x.max, y.max),
+                new Vector2(x.max, y.min)
+            };
+
+            /// <summary>
+            /// Creates a new box given two corners (any order).
+            /// </summary>
+            /// <param name="corner1">A corner of the box.</param>
+            /// <param name="corner2">A corner of the box.</param>
+            public Box(Vector2 corner1, Vector2 corner2) {
+                x = new Range(
+                    corner1.x < corner2.x ? corner1.x : corner2.x,
+                    corner1.x > corner2.x ? corner1.x : corner2.x
+                );
+                y = new Range(
+                    corner1.y < corner2.y ? corner1.y : corner2.y,
+                    corner1.y > corner2.y ? corner1.y : corner2.y
+                );
+            }
+
+            public Box(Range x, Range y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            /// <summary>
+            /// Checks if the given point lies within the box.
+            /// </summary>
+            /// <param name="point">Point to test.</param>
+            /// <returns>Returns true if the point lies within the box.</returns>
+            public bool Contains(Vector2 point) {
+                return x.Contains(point.x) && y.Contains(point.y);
+            }
+
+            public bool Contains(Box box) {
+                return x.Contains(box.x) && y.Contains(box.y);
+            }
+
+            public bool Overlaps(Box box) {
+                return x.Overlaps(box.x) && y.Overlaps(box.y);
+            }
+
+            /// <summary>
+            /// If nessesary, shrinks the given box to fit within this box. The center is kept the same.
+            /// </summary>
+            /// <param name="box">Box to place inside.</param>
+            /// <returns>Returns a new box that fits inside the original.</returns>
+            public Box Place(Box box) {
+                float deltaLt = box.x.min - x.min;
+                float deltaRt = x.max - box.x.max;
+                float deltaDn = box.y.min - y.min;
+                float deltaUp = y.max - box.y.max;
+
+                float deltaHz = deltaLt > deltaRt ? deltaLt : deltaRt;
+                float deltaVt = deltaDn > deltaUp ? deltaUp : deltaDn;
+
+                box.x.ChangeByAmount(deltaHz);
+                box.y.ChangeByAmount(deltaVt);
+
+                return box;
+            }
+
+            /// <summary>
+            /// Gives two boxes that are the original box split at the given y value.
+            /// </summary>
+            /// <param name="value">Y value to split the box at.</param>
+            /// <returns>Returns an array of two boxes.</returns>
+            public Box[] SplitAtY(float value) {
+                return new Box[] {
+                    new Box( //Top
+                        new Vector2(x.min, value),
+                        new Vector2(x.max, y.max)
+                    ),
+                    new Box( //Bottom
+                        new Vector2(x.min, y.min),
+                        new Vector2(x.max, value)
+                    )
+                };
+            }
+
+            /// <summary>
+            /// Gives two boxes that are the original box split at the given x value.
+            /// </summary>
+            /// <param name="value">X value to split the box at.</param>
+            /// <returns>Returns an array of two boxes.</returns>
+            public Box[] SplitAtX(float value) {
+                return new Box[] {
+                    new Box( //Left
+                        new Vector2(x.min, y.min),
+                        new Vector2(value, y.max)
+                    ),
+                    new Box( //Right
+                        new Vector2(value, y.min),
+                        new Vector2(x.max, y.max)
+                    )
+                };
+            }
+
+            #region Operators
+            public static bool operator ==(Box left, Box right) { return left.x == right.x && left.y == right.y; }
+            public static bool operator !=(Box left, Box right) { return left.x != right.x && left.y != right.y; }
+
+            #region misc.
+            public override bool Equals(object obj) {
+                return base.Equals(obj);
+            }
+
+            public override int GetHashCode() {
+                return base.GetHashCode();
+            }
+
+            public override string ToString() {
+                return base.ToString();
+            }
+            #endregion
+            #endregion
+        }
+
+        /// <summary>
+        /// Stores data and methods for a circle.
         /// </summary>
         public struct Circle {
             public Vector2 center;
@@ -782,6 +912,34 @@ namespace MyStuff {
                 this.radius = radius;
             }
         }
+
+        /// <summary>
+        /// Defines an area from boxes.
+        /// </summary>
+        [Serializable]
+        public class Area {
+            public Box[] boxes;
+
+            public Area(Box[] boxes) {
+                this.boxes = boxes;
+            }
+
+            public Box Place(Box box) {
+                foreach(Box limit in boxes)
+                    if(limit.Contains(box.Center))
+                        box = limit.Place(box);
+                return box;
+            }
+
+            public bool Contains(Box box) {
+                foreach(Box limit in boxes) {
+                    if(limit.Contains(box.Center) && limit.Contains(box))
+                        return true;
+                }
+                return false;
+            }
+        }
+
         #endregion
 
     }
@@ -796,12 +954,13 @@ namespace MyStuff {
         /// <summary>Unlimited range.</summary>
         public static Range infinite = new Range(Mathf.NegativeInfinity, Mathf.Infinity);
 
-        /// <summary>Area of 1: (-0.5, +0.5)</summary>
+        /// <summary>Size of 1: (-0.5, +0.5)</summary>
         public static Range half = new Range(-0.5f, 0.5f);
 
-        public float size   => max - min;
-        public float offset => min + (size / 2);
-        public float random => UnityEngine.Random.Range(min, max);
+        public float Size            => max - min;
+        public float Center          => min + (Size / 2);
+        public float Random          => UnityEngine.Random.Range(min, max);
+        public float RandomSpread    => (UnityEngine.Random.value * UnityEngine.Random.Range(-1.0f, +1.0f) / 2 + 0.5f) * (max - min) + min;
 
         public float min, max;
         public Range(float minimum = Mathf.NegativeInfinity, float maximum = Mathf.Infinity) {
@@ -810,11 +969,54 @@ namespace MyStuff {
         }
 
         /// <summary>
+        /// Adds twice the given value to the size.
+        /// </summary>
+        /// <param name="value">The value to add to the size.</param>
+        /// <returns>Returns a new range with the new size and the same center.</returns>
+        public Range ChangeByAmount(float value) {
+            value /= 2;
+            return new Range(min - value, max + value);
+        }
+
+        /// <summary>
+        /// Multiplies the size by the given value.
+        /// </summary>
+        /// <param name="value">The value to multiply the size by.</param>
+        /// <returns>Returns a new range with the new size and same center.</returns>
+        public Range ChangeByFactor(float value) {
+            return ChangeByAmount(Size * value);
+        }
+
+        /// <summary>
         /// Checks if the given value is within the range.
         /// </summary>
         /// <returns>Returns 'true' if the given value is on the interval [min, max].</returns>
         public bool Contains(float value) {
             return min <= value && value <= max;
+        }
+
+        /// <summary>
+        /// Finds the value's distance to the closest edge of the range.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public float EdgeDistance(float value) {
+            float deltaMin = Mathf.Abs(value - min);
+            float deltaMax = Mathf.Abs(value - max);
+            return deltaMin < deltaMax ? deltaMin : deltaMax;
+        }
+
+        /// <summary>
+        /// Checks if the given range is completely encompassed by this range.
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public bool Contains(Range range) {
+            return EdgeDistance(range.Center) >= range.Size / 2;
+        }
+
+        public bool Overlaps(Range range) {
+            return range.min <= max && range.max >= min;
         }
 
         /// <summary>
@@ -833,18 +1035,9 @@ namespace MyStuff {
         /// <returns>Returns the closest min/max to the given value.</returns>
         public float PlaceOutside(float value) {
             if(Contains(value)) return value;
-            if((min - value).Abs() > (max - value).Abs())
+            if(Mathf.Abs(min - value) > Mathf.Abs(max - value))
                 return min;
             return max;
-        }
-
-        public float Random() {
-            return UnityEngine.Random.Range(min, max);
-        }
-
-        public float RandomSpread() {
-            float n = UnityEngine.Random.value * UnityEngine.Random.Range(-1.0f, +1.0f) / 2 + 0.5f;
-            return n * (max - min) + min;
         }
 
         public override string ToString() {
@@ -946,11 +1139,11 @@ namespace MyStuff {
         }
 
         public Vector2 Random() {
-            return new Vector2(x.Random(), y.Random());
+            return new Vector2(x.Random, y.Random);
         }
 
         public Vector2 RandomSpread() {
-            return new Vector2(x.RandomSpread(), y.RandomSpread());
+            return new Vector2(x.RandomSpread, y.RandomSpread);
         }
 
         public override string ToString() {
@@ -1170,6 +1363,13 @@ namespace MyStuff {
         public TimedAction(float delay, Action whenFinished) : this(delay, "default", whenFinished) {}
 
         /// <summary>
+        /// Creates a action that will be run after the delay is over.
+        /// </summary>
+        /// <param name="delay">The amount of time that the action is delayed.</param>
+        /// <param name="whenFinished">Action to run when the delay is over.</param>
+        public TimedAction(float delay, Action whenFinished, bool inFixedTimeStep) : this(delay, "default", whenFinished, inFixedTimeStep) {}
+
+        /// <summary>
         /// Creates an action that will be run after the delay is over.
         /// </summary>
         /// <param name="delay">The amount of time that the action is delayed.</param>
@@ -1178,6 +1378,20 @@ namespace MyStuff {
         public TimedAction(float delay, string tag, Action whenFinished) {
             action = whenFinished;
             if(Time.inFixedTimeStep) finalTime = Time.fixedTime + delay;
+            else finalTime = Time.time + delay;
+            startTime = finalTime;
+            this.tag = tag;
+        }
+
+        /// <summary>
+        /// Creates an action that will be run after the delay is over.
+        /// </summary>
+        /// <param name="delay">The amount of time that the action is delayed.</param>
+        /// <param name="tag">Optional identifier tag. (default = "default")</param>
+        /// <param name="whenFinished">Action to run when the delay is over.</param>
+        public TimedAction(float delay, string tag, Action whenFinished, bool inFixedTimeStep) {
+            action = whenFinished;
+            if(inFixedTimeStep) finalTime = Time.fixedTime + delay;
             else finalTime = Time.time + delay;
             startTime = finalTime;
             this.tag = tag;
@@ -1339,6 +1553,23 @@ namespace MyStuff {
         public static void BoxCast2D(Vector2 origin, RaycastHit2D hit, Color color) {
             Debug.DrawLine(origin, hit.point, color);
         }
+
+        public static void DrawBox(Box box) { DrawBox(box, Color.white); }
+        public static void DrawBox(Box box, Color color) {
+            var points = box.Points;
+            Debug.DrawLine(points[0], points[1], color);
+            Debug.DrawLine(points[1], points[2], color);
+            Debug.DrawLine(points[2], points[3], color);
+            Debug.DrawLine(points[3], points[0], color);
+        }
+
+        public static void LogArray<T>(T[] objs) {
+            string arrayString = "{ ";
+            foreach(T obj in objs)
+                arrayString += obj + ", ";
+            arrayString = arrayString.Substring(0, arrayString.Length - 2) + " }";
+            Debug.Log(arrayString);
+        }
     }
     #endregion
 
@@ -1381,7 +1612,7 @@ namespace MyStuff {
         /// </summary>
         /// <returns>Returns a random float that is inside the Range angularRange.</returns>
         public float GetAngular() {
-            return angularRange.Random();
+            return angularRange.Random;
         }
 
         /// <summary>
@@ -1390,8 +1621,8 @@ namespace MyStuff {
         /// <param name="spread">Use Range.RandomSpread()?</param>
         /// <returns>Returns a random float that is inside the Range angularRange.</returns>
         public float GetAngular(bool spread) {
-            if(spread) return angularRange.RandomSpread();
-            else return angularRange.Random();
+            if(spread) return angularRange.RandomSpread;
+            else return angularRange.Random;
         }
 
         public void Set(GameObject gameObject, bool spread = true) {
@@ -1605,24 +1836,6 @@ namespace MyStuff {
             float theta = angle.radians;
             float rotation = Vector2.SignedAngle(Vector2.right, v2);
             return v1.SetHeading(theta + rotation);
-        }
-        #endregion
-
-        #region primitives
-        /// <summary>
-        /// Mathf.Abs() but specifically for making numbers positive.
-        /// </summary>
-        public static float Abs(this float n) {
-            if(n < 0) return -n;
-            else return n;
-        }
-
-        /// <summary>
-        /// Mathf.Abs() but specifically for making numbers positive.
-        /// </summary>
-        public static int Abs(this int n) {
-            if(n < 0) return -n;
-            else return n;
         }
         #endregion
 
